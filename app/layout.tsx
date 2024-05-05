@@ -19,9 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <header>
-          <nav className="flex justify-center space-x-4">
-            <Link href="/">Home</Link>
-            <Link href="devices">Devices</Link>
+          <nav className="flex justify-center menu menu-horizontal">
+            <li><Link href="/">Home</Link></li>
+            <li><Link href="devices">Devices</Link></li>
           </nav>
         </header>
         {children}

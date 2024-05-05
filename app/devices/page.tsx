@@ -1,8 +1,7 @@
 "use client";
 
 import Head from "next/head";
-import { DevicesProvider } from "../../state/deviceContext";
-import type { Device } from "../../state/deviceContext";
+import { DevicesProvider } from "../state/deviceContext";
 
 import DevicesList from "./devicesList";
 import AddDevice from "./addDevice";

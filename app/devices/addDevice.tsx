@@ -18,6 +18,7 @@ export default function AddDevice () {
                     device: {
                         id: uuidv4(),
                         name,
+                        ports: []
                     }
                 });
             }}

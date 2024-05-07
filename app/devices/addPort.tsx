@@ -1,15 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDevicesDispatch } from "../state/deviceContext";
 import { AudioPort, Device, MidiPort, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions';
+import classNames from 'classnames';
 
-export default function AddPort ({ device }: { device: Device }) {
+export default function AddPort ({ device, className, closeModal }: { device: Device, className: string, closeModal(): void }) {
     const [name, setName] = useState('')
     const [type, setType] = useState('')
     const [connector, setConnector] = useState('')
     const [io, setIo] = useState('')
     const [host, setHost] = useState(false)
     const dispatch = useDevicesDispatch()
+    const inputRef = useRef<HTMLInputElement>(null)
+    useEffect(() => {
+        inputRef.current?.focus()
+    })
 
     function resetForm () {
         setName('')
@@ -19,111 +24,115 @@ export default function AddPort ({ device }: { device: Device }) {
     }
 
     return (
-        <form
-            className="card"
-            onSubmit={ e => {
-                e.preventDefault();
-                e.stopPropagation();
-                if(!dispatch) throw new TypeError('Cannot dispatch action "addPort" as dispatch is null');
-                let port
-                switch(type) {
-                    case PortTypes.USB: {
-                        port = {
-                            id: uuidv4(),
-                            name,
-                            type,
-                            connector,
-                            io: PortDirectionality.BIDIRECTIONAL,
-                            host,
-                        } as UsbPort
-                        break;
-                    }
-                    case PortTypes.AUDIO: {
-                        port = {
-                            id: uuidv4(),
-                            name,
-                            type,
-                            connector,
-                            io,
-                        } as AudioPort
-                        break;
-                    }
-                    case PortTypes.MIDI: {
-                        port = {
-                            id: uuidv4(),
-                            name,
-                            type,
-                            connector,
-                            io,
-                        } as MidiPort
-                        break;
-                    }
-                }
-
-                if(typeof port !== 'undefined') {
-                    resetForm();
-                    dispatch({
-                        type: 'addPort',
-                        id: device.id,
-                        port,
-                    });
-                }
-            }}
-        >
-            <div className="card-body">
-                <h3 className="card-title">Add Port</h3>
-
-                <label className="input input-bordered flex items-center gap-2">
-                    Name
-                    <input
-                        type="text"
-                        placeholder="Name of port"
-                        value={ name }
-                        onChange={ e => setName(e.target.value) }
-                    />
-                    
-                </label>
-
-                <label className="input input-bordered flex items-center gap-2">
-                    Type
-                    <select
-                        onChange={ e => setType(e.target.value as PortTypes) }
-                        value={ type }
-                        required
-                    >
-                        <option value="">--Select a type--</option>
-                        <option value={ PortTypes.AUDIO }>{ PortTypes.AUDIO }</option>
-                        <option value={ PortTypes.MIDI }>{ PortTypes.MIDI }</option>
-                        <option value={ PortTypes.USB }>{ PortTypes.USB }</option>
-                    </select>
-                    
-                </label>
-
-                <label className="input input-bordered flex items-center gap-2">
-                    Connector
-                    <ConnectorSelect type={ type } connector={ connector } setConnector={ setConnector} />
-                </label>
-
-                { (type === PortTypes.USB ) ? 
-                    <label className="input input-checkbox flex items-center gap-2">
-                        <input 
-                            type="checkbox"
-                            onChange={ e => setHost(!host) }
-                            checked={ host }
-                        />
-                        USB Host Port
-                    </label>
-                 : 
-                    <label className="input input-bordered flex items-center gap-2">
-                        IO
-                        <IoSelect type={ type } io={ io } setIo={ setIo } />
-                    </label>
-                }
+        <dialog className={ classNames('modal', className)}>
+            <div className="modal-box">
+                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={ closeModal }>✕</button>
+                <form
+                    onSubmit={ e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if(!dispatch) throw new TypeError('Cannot dispatch action "addPort" as dispatch is null');
+                        let port
+                        switch(type) {
+                            case PortTypes.USB: {
+                                port = {
+                                    id: uuidv4(),
+                                    name,
+                                    type,
+                                    connector,
+                                    io: PortDirectionality.BIDIRECTIONAL,
+                                    host,
+                                } as UsbPort
+                                break;
+                            }
+                            case PortTypes.AUDIO: {
+                                port = {
+                                    id: uuidv4(),
+                                    name,
+                                    type,
+                                    connector,
+                                    io,
+                                } as AudioPort
+                                break;
+                            }
+                            case PortTypes.MIDI: {
+                                port = {
+                                    id: uuidv4(),
+                                    name,
+                                    type,
+                                    connector,
+                                    io,
+                                } as MidiPort
+                                break;
+                            }
+                        }
+                        if(typeof port !== 'undefined') {
+                            closeModal()
+                            resetForm();
+                            dispatch({
+                                type: 'addPort',
+                                id: device.id,
+                                port,
+                            });
+                        }
+                    }}
+                >
+                    <div>
+                        <h3 className="card-title">Add Port</h3>
+                        <label className="input input-bordered flex items-center gap-2">
+                            Name
+                            <input
+                                type="text"
+                                placeholder="Name of port"
+                                value={ name }
+                                onChange={ e => setName(e.target.value) }
+                                ref={ inputRef }
+                            />
+                
+                        </label>
+                        <label className="input input-bordered flex items-center gap-2">
+                            Type
+                            <select
+                                onChange={ e => setType(e.target.value as PortTypes) }
+                                value={ type }
+                                required
+                            >
+                                <option value="">--Select a type--</option>
+                                <option value={ PortTypes.AUDIO }>{ PortTypes.AUDIO }</option>
+                                <option value={ PortTypes.MIDI }>{ PortTypes.MIDI }</option>
+                                <option value={ PortTypes.USB }>{ PortTypes.USB }</option>
+                            </select>
+                
+                        </label>
+                        <label className="input input-bordered flex items-center gap-2">
+                            Connector
+                            <ConnectorSelect type={ type } connector={ connector } setConnector={ setConnector} />
+                        </label>
+                        { (type === PortTypes.USB ) ?
+                            <label className="input input-checkbox flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    onChange={ e => setHost(!host) }
+                                    checked={ host }
+                                />
+                                USB Host Port
+                            </label>
+                         :
+                            <label className="input input-bordered flex items-center gap-2">
+                                IO
+                                <IoSelect type={ type } io={ io } setIo={ setIo } />
+                            </label>
+                        }
                 
                 
-                <button className='btn'>Add</button>
+                        <button className='btn'>Add</button>
+                    </div>
+                </form>
             </div>
-        </form>
+            <form method="dialog" className="modal-backdrop">
+                <button onClick={ closeModal }>close</button>
+            </form>
+        </dialog>
     )
 }
 

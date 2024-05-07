@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { useState } from "react";
 import { useDevicesDispatch } from "../state/deviceContext";
-import { Device, Port, PortConnectors, PortDirectionality, PortTypes } from '../state/descriptions';
+import { AudioPort, Device, MidiPort, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions';
 
 export default function AddPort ({ device }: { device: Device }) {
     const [name, setName] = useState('')
@@ -28,24 +28,34 @@ export default function AddPort ({ device }: { device: Device }) {
                 let port
                 switch(type) {
                     case PortTypes.USB: {
-                        if (!!connector) port = {
+                        port = {
                             id: uuidv4(),
                             name,
                             type,
                             connector,
                             io: PortDirectionality.BIDIRECTIONAL,
                             host,
-                        }
+                        } as UsbPort
                         break;
                     }
-                    default: {
-                        if(!!type && !!connector && !!io) port = {
+                    case PortTypes.AUDIO: {
+                        port = {
                             id: uuidv4(),
                             name,
                             type,
                             connector,
                             io,
-                        }
+                        } as AudioPort
+                        break;
+                    }
+                    case PortTypes.MIDI: {
+                        port = {
+                            id: uuidv4(),
+                            name,
+                            type,
+                            connector,
+                            io,
+                        } as MidiPort
                         break;
                     }
                 }
@@ -117,7 +127,7 @@ export default function AddPort ({ device }: { device: Device }) {
     )
 }
 
-function ConnectorSelect ({ type, connector, setConnector }: { type: string, connector: string, setConnector: React.Dispatch<React.SetStateAction<string>> }) {
+function ConnectorSelect ({ type, connector, setConnector }: { type: string, connector: string, setConnector: React.Dispatch<React.SetStateAction<any>> }) {
     const typeSelected = !!type
     let connectors
 
@@ -139,11 +149,11 @@ function ConnectorSelect ({ type, connector, setConnector }: { type: string, con
     return (
         (!typeSelected) ? (
             <select>
-                <option value="">--Please select a type first--</option>
+                <option>--Please select a type first--</option>
             </select>
         ) : (
             <select
-                onChange={ e => setConnector(e.target.value as PortConnectors) }
+                onChange={ e => setConnector(e.target.value) }
                 value={ connector }
                 required
             >
@@ -156,7 +166,7 @@ function ConnectorSelect ({ type, connector, setConnector }: { type: string, con
     )
 }
 
-function IoSelect ({ type, io, setIo }: { type: string, io: string, setIo: React.Dispatch<React.SetStateAction<string>> }) {
+function IoSelect ({ type, io, setIo }: { type: string, io: string, setIo: React.Dispatch<React.SetStateAction<any>> }) {
     const typeSelected = !!type
     let directions
 

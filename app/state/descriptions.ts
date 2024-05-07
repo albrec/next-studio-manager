@@ -35,31 +35,33 @@ export enum PortDirectionality {
     BIDIRECTIONAL = 'BIDIRECTIONAL',
 }
 
-export interface Port {
+export type AudioConnectors = PortConnectors.TRS | PortConnectors.TR | PortConnectors.MINI_TRS | PortConnectors.MINI_TS
+export type MidiConnectors = PortConnectors.DIN | PortConnectors.MINI_TRS
+export type UsbConnectors = PortConnectors.USB_A | PortConnectors.USB_B | PortConnectors.USB_C | PortConnectors.USB_MINI | PortConnectors.USB_MICRO
+
+export interface PortBase {
     id: string,
     name: string,
-    type: PortTypes,
-    connector: PortConnectors,
-    io: PortDirectionality,
-    host?: boolean,
 }
 
-export interface AudioPort extends Port {
+export interface AudioPort extends PortBase {
     type: PortTypes.AUDIO,
     subType: AudioPortSubTypes,
-    connector: PortConnectors.TRS | PortConnectors.TR | PortConnectors.MINI_TRS | PortConnectors.MINI_TS,
+    connector: AudioConnectors,
     io: PortDirectionality.INPUT | PortDirectionality.OUTPUT,
 }
 
-export interface MidiPort extends Port {
+export interface MidiPort extends PortBase {
     type: PortTypes.MIDI,
-    connector: PortConnectors.DIN | PortConnectors.MINI_TRS,
+    connector: MidiConnectors,
     io: PortDirectionality.INPUT | PortDirectionality.OUTPUT,
 }
 
-export interface UsbPort extends Port {
+export interface UsbPort extends PortBase {
     type: PortTypes.USB,
     host: boolean,
-    connector: PortConnectors.USB_A | PortConnectors.USB_B | PortConnectors.USB_C | PortConnectors.USB_MINI | PortConnectors.USB_MICRO,
+    connector: UsbConnectors,
     io: PortDirectionality.BIDIRECTIONAL,
 }
+
+export type Port = AudioPort | MidiPort | UsbPort

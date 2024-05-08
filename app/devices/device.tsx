@@ -22,6 +22,7 @@ export default function Device ({ device }: { device: DeviceType }) {
                     <li className="shrink border-2 p-4" key={ port.id }>
                         <h5>Port: { port.name }</h5>
                         <div>Type: { port.type }</div>
+                        { port.type === PortTypes.AUDIO && <div>Sub Type: { port.subType }</div> }
                         <div>Connector: { port.connector }</div>
                         { port.type === PortTypes.USB ? 
                             <div>Host Port: <input className="input-checkbox" type="checkbox" checked={ port.host } readOnly /></div>

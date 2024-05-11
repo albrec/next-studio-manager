@@ -1,23 +1,26 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import ContextWrapper from "./contextWrappers";
-import classNames from "classnames";
+import type { Metadata } from "next"
+import Link from "next/link"
+import { Inter } from "next/font/google"
+import '@fontsource/roboto/300.css'
+import '@fontsource/roboto/400.css'
+import '@fontsource/roboto/500.css'
+import '@fontsource/roboto/700.css'
+import classNames from "classnames"
+import { ThemeProvider } from '@mui/material/styles'
 
-const inter = Inter({ subsets: ["latin"] });
+import "./globals.css"
+import ContextWrapper from "./contextWrappers"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: { default: "Next Studio Manager", template: "%s | Next Studio Manager" },
   description: "Defining, connecting and managing you studio",
-};
+}
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-      </head>
       <ContextWrapper>
         <body className={ classNames(inter.className, 'px-12') }>
           <header className="flex flex-col items-center">
@@ -32,5 +35,5 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </body>
       </ContextWrapper>
     </html>
-  );
+  )
 }

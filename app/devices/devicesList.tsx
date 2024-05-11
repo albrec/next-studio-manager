@@ -8,7 +8,7 @@ export default function DevicesList () {
 
     return (
         <>
-            <ul className="grid grid-cols-2 gap-4">
+            <ul className="divide-y">
             { devices && devices.map(device => (
                 <Device key={ device.id } device={ device } />
             ))}

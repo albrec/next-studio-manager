@@ -12,11 +12,16 @@ export default function Devices () {
   return (
     <>
       <Head>
-        <title>Devices Page</title>
+        <title>Devices</title>
       </Head>
       <main>
-        <h1 className="text-3xl">Devices page</h1>
-        <h2 className="text-xl mb-4">Devices <button className="btn" onClick={ e => { setModalOpen(true) } }>Add Device</button></h2>
+        <div className="flex items-center mb-8">
+          <h1 className="text-3xl font-thin">Devices</h1>
+          <div className="divider divider-horizontal"></div>
+          <button className="btn btn-ghost" onClick={ e => { setModalOpen(true) } }>Add Device <span className="material-symbols-outlined">Add</span></button>
+        </div>
+        
+        
         <DeviceForm className={ classNames({ 'modal-open': modalOpen })} closeModal={ () => setModalOpen(false) } />
         <DevicesList />
       </main>

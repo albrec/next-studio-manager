@@ -43,17 +43,19 @@ export default function DeviceForm ({ device, className, closeModal }: { device?
                 <form
                     onSubmit={ submitForm }
                 >
-                    <div>
+                    <div className="flex flex-col gap-3">
                 
-                        <h3 className="card-title">Add Device</h3>
-                        <label className="input input-bordered flex items-center gap-2">
+                        <h3 className="text-xl">{ !!device ? 'Update' : 'Add' } Device</h3>
+                        <label className="flex items-center gap-2">
                             Name
                             <input
+                                className="input input-bordered w-full max-w-xs"
                                 type="text"
                                 placeholder="Name of device"
                                 value={ name }
                                 onChange={ e => setName(e.target.value) }
                                 ref={ inputRef }
+                                required
                             />
                         </label>
                 

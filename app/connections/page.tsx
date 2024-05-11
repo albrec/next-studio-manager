@@ -11,10 +11,10 @@ export default function Connections () {
   return (
     <>
       <Head>
-        <title>Connections Page</title>
+        <title>Connections</title>
       </Head>
       <main>
-        <h1 className="text-3xl">Connections page</h1>
+        <h1 className="text-3xl font-thin">Connections</h1>
         <ConnectionGrid />
       </main>
     </>

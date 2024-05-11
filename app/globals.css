@@ -16,18 +16,29 @@
   }
 }
 
-body {
-  /* background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb)); */
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+table.connection-grid {
+  td {
+    border: 1px lightgray solid;
+  }
+
+  thead{
+    th {
+      rotate: -70deg;
+      transform-origin: left;
+
+      > span {
+        display: inline-block;
+        position: absolute;
+        left: .5rem;
+        bottom: 0;
+      }
+    }
   }
 }
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ContextWrapper from "./contextWrappers";
+import classNames from "classnames";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,9 +15,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+      </head>
       <ContextWrapper>
-        <body className={inter.className}>
-          <header>
+        <body className={ classNames(inter.className, 'px-12') }>
+          <header className="flex flex-col items-center">
+            <h1 className="text-4xl font-thin">Next Studio Manager</h1>
             <nav className="flex justify-center menu menu-horizontal">
               <li><Link href="/">Home</Link></li>
               <li><Link href="devices">Devices</Link></li>

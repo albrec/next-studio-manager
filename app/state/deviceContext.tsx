@@ -1,17 +1,17 @@
-import { Dispatch, createContext, useContext, useEffect, useReducer } from 'react';
-import type { Device, Port } from './descriptions';
+import { Dispatch, createContext, useContext, useEffect, useReducer } from 'react'
+import type { Device, Port } from './descriptions'
 
-const DevicesContext = createContext<Device[] | null>(null);
-const DevicesDispatchContext = createContext<Dispatch<DeviceActions> | null>(null);
+const DevicesContext = createContext<Device[] | null>(null)
+const DevicesDispatchContext = createContext<Dispatch<DeviceActions> | null>(null)
 
 const DEVICE_KEY = 'devices'
 
 export function useDevices() {
-  return useContext(DevicesContext);
+  return useContext(DevicesContext)
 }
 
 export function useDevicesDispatch() {
-  return useContext(DevicesDispatchContext);
+  return useContext(DevicesDispatchContext)
 }
 
 
@@ -27,9 +27,9 @@ export function useDevicesDispatch() {
  * `dispatch` function to its children components.
  */
 export function DevicesProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [devices, dispatch] = useReducer( devicesReducer, initialState, initializeDevices );
+  const [devices, dispatch] = useReducer( devicesReducer, initialState, initializeDevices )
   useEffect(() => {
-    localStorage.setItem(DEVICE_KEY, JSON.stringify(devices));
+    localStorage.setItem(DEVICE_KEY, JSON.stringify(devices))
   }, [devices])
   
   return (
@@ -38,7 +38,7 @@ export function DevicesProvider({ children }: Readonly<{ children: React.ReactNo
         {children}
       </DevicesDispatchContext.Provider>
     </DevicesContext.Provider>
-  );
+  )
 }
 
 const initialState: Device[] = []
@@ -87,19 +87,19 @@ type DeviceActions = AddDevice | UpdateDevice | DeleteDevice | AddPort | UpdateP
 function devicesReducer(devices: Device[], action: DeviceActions): Device[] {
   switch (action.type) {
     case 'add': {
-      return [...devices, action.device];
+      return [...devices, action.device]
     }
     case 'update': {
       return devices.map(d => {
         if (action.device?.id && d.id === action.device.id) {
-          return action.device;
+          return action.device
         } else {
-          return d;
+          return d
         }
-      });
+      })
     }
     case 'delete': {
-      return devices.filter(d => d.id !== action.id);
+      return devices.filter(d => d.id !== action.id)
     }
     case 'addPort': {
       return devices.map(d => {

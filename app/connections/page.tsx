@@ -1,10 +1,9 @@
-"use client";
+"use client"
 
-import Head from "next/head";
+import Head from "next/head"
 
-import { useState } from "react";
-import classNames from "classnames";
-import { ConnectionGrid } from "./connectionGrid";
+import { useState } from "react"
+import { ConnectionGrid } from "./connectionGrid"
 
 export default function Connections () {
   const [modalOpen, setModalOpen] = useState(false)
@@ -14,9 +13,9 @@ export default function Connections () {
         <title>Connections</title>
       </Head>
       <main>
-        <h1 className="text-3xl font-thin">Connections</h1>
+        <h1>Connections</h1>
         <ConnectionGrid />
       </main>
     </>
-    );
+    )
   }

@@ -1,8 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
-import { FormEvent, useEffect, useRef, useState } from "react";
-import { useDevicesDispatch } from "../state/deviceContext";
-import { AudioPort, AudioPortSubTypes, Device, MidiPort, Port, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions';
-import classNames from 'classnames';
+import { v4 as uuidv4 } from 'uuid'
+import { FormEvent, useState } from "react"
+import { useDevicesDispatch } from "../state/deviceContext"
+import { AudioPort, AudioPortSubTypes, Device, MidiPort, Port, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions'
+import classNames from 'classnames'
 
 export default function PortForm ({ port, device, className, closeModal }: { port?: Port | null, device: Device, className: string, closeModal(): void }) {
     const [name, setName] = useState(port?.name || '')
@@ -15,13 +15,13 @@ export default function PortForm ({ port, device, className, closeModal }: { por
 
     return (
         <dialog className={ classNames('modal', className)}>
-            <div className="modal-box">
-                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={ closeModal }>✕</button>
+            <div>
+                <button onClick={ closeModal }>✕</button>
                 <form
                     onSubmit={ submitForm }
                 >
                     <div className="flex flex-col gap-3">
-                        <h3 className="text-xl">{ port ? 'Update' : 'Add' } Port</h3>
+                        <h3>{ port ? 'Update' : 'Add' } Port</h3>
                         <label className="flex items-center gap-2">
                             Type
                             <TypeSelect />
@@ -31,7 +31,6 @@ export default function PortForm ({ port, device, className, closeModal }: { por
                             <label className="flex items-center gap-2">
                                 USB Host Port
                                 <input
-                                    className="checkbox"
                                     type="checkbox"
                                     onChange={ e => setHost(!host) }
                                     checked={ host }
@@ -64,7 +63,6 @@ export default function PortForm ({ port, device, className, closeModal }: { por
                         <label className="flex items-center gap-2">
                             Name
                             <input
-                                className="input input-bordered w-full max-w-xs"
                                 type="text"
                                 placeholder="Name of port"
                                 value={ name || deriveName() }
@@ -75,11 +73,11 @@ export default function PortForm ({ port, device, className, closeModal }: { por
                         </label>
                 
 
-                        <button className='btn'>{ port ? 'Update' : 'Add' }</button>
+                        <button>{ port ? 'Update' : 'Add' }</button>
                     </div>
                 </form>
             </div>
-            <form method="dialog" className="modal-backdrop">
+            <form method="dialog">
                 <button onClick={ closeModal }>close</button>
             </form>
         </dialog>
@@ -89,7 +87,6 @@ export default function PortForm ({ port, device, className, closeModal }: { por
     function TypeSelect () {
         return (
             <select
-                className="select select-bordered w-full max-w-xs"
                 onChange={ e => setType(e.target.value as PortTypes) }
                 value={ type || undefined }
                 required
@@ -106,7 +103,6 @@ export default function PortForm ({ port, device, className, closeModal }: { por
     function SubTypeSelect () {
         return (
             <select
-                className="select select-bordered w-full max-w-xs"
                 onChange={ e => setSubType(e.target.value as AudioPortSubTypes) }
                 value={ subType || undefined }
                 required
@@ -141,7 +137,6 @@ export default function PortForm ({ port, device, className, closeModal }: { por
         
         return (
             <select
-                className="select select-bordered max-w-xs"
                 onChange={ e => setConnector(e.target.value) }
                 value={ connector || undefined }
                 required
@@ -177,12 +172,11 @@ export default function PortForm ({ port, device, className, closeModal }: { por
         
         return (
             (!typeSelected) ? (
-                <select className="select select-bordered w-full max-w-xs">
+                <select>
                     <option>--Please select a type first--</option>
                 </select>
             ) : (
                 <select
-                    className="select select-bordered w-full max-w-xs"
                     onChange={ e => setIo(e.target.value as PortDirectionality) }
                     value={ io || undefined }
                     required
@@ -197,8 +191,8 @@ export default function PortForm ({ port, device, className, closeModal }: { por
     }
 
     function submitForm(e: FormEvent) {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault()
+        e.stopPropagation()
         let p = {
             id: port?.id || uuidv4(),
             name: name || deriveName(),
@@ -213,27 +207,27 @@ export default function PortForm ({ port, device, className, closeModal }: { por
                     io: PortDirectionality.BIDIRECTIONAL,
                     host,
                 } as UsbPort
-                break;
+                break
             }
             case PortTypes.AUDIO: {
                 p = {
                     ...p,
                     subType,
                 } as AudioPort
-                break;
+                break
             }
             case PortTypes.MIDI: {
                 p = {
                     ...p,
                 } as MidiPort
-                break;
+                break
             }
         }
         dispatch?.({
             type: port ? 'updatePort' : 'addPort',
             id: device.id,
             port: p,
-        });
+        })
         closeModal()
     }
 

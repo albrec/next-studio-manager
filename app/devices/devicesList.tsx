@@ -1,10 +1,8 @@
 import { useDevices, useDevicesDispatch } from "@/app/state/deviceContext"
-import AddPort from "./portForm";
-import { PortTypes } from "../state/descriptions";
-import Device from "./device";
+import Device from "./device"
 
 export default function DevicesList () {
-    const devices = useDevices();
+    const devices = useDevices()
 
     return (
         <>

@@ -1,28 +1,63 @@
 import { v4 as uuidv4 } from 'uuid';
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useDevicesDispatch } from "../state/deviceContext";
-import { AudioPort, AudioPortSubTypes, Device, MidiPort, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions';
+import { AudioPort, AudioPortSubTypes, Device, MidiPort, Port, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions';
 import classNames from 'classnames';
 
-export default function AddPort ({ device, className, closeModal }: { device: Device, className: string, closeModal(): void }) {
-    const [name, setName] = useState('')
-    const [type, setType] = useState('')
-    const [subType, setSubType] = useState('')
-    const [connector, setConnector] = useState('')
-    const [io, setIo] = useState('')
-    const [host, setHost] = useState(false)
+export default function PortForm ({ port, device, className, closeModal }: { port?: Port, device: Device, className: string, closeModal(): void }) {
+    const [name, setName] = useState(port?.name || '')
+    const [type, setType] = useState(port?.type || '')
+    const [subType, setSubType] = useState(port?.type === PortTypes.AUDIO && port?.subType ? port.subType : '')
+    const [connector, setConnector] = useState(port?.connector || '')
+    const [io, setIo] = useState(port?.io || '')
+    const [host, setHost] = useState(port?.type === PortTypes.USB && port?.host ? port.host : false)
     const dispatch = useDevicesDispatch()
     const inputRef = useRef<HTMLInputElement>(null)
     useEffect(() => {
         inputRef.current?.focus()
     })
 
-    function resetForm () {
-        setName('')
-        setType('')
-        setSubType('')
-        setConnector('')
-        setIo('')
+    function submitForm(e: FormEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+        let p = {
+            id: port?.id || uuidv4(),
+            name,
+            type,
+            connector,
+            io,
+        }
+        switch(type) {
+            case PortTypes.USB: {
+                p = {
+                    ...p,
+                    io: PortDirectionality.BIDIRECTIONAL,
+                    host,
+                } as UsbPort
+                break;
+            }
+            case PortTypes.AUDIO: {
+                p = {
+                    ...p,
+                    subType,
+                } as AudioPort
+                break;
+            }
+            case PortTypes.MIDI: {
+                p = {
+                    ...p,
+                } as MidiPort
+                break;
+            }
+        }
+        if(typeof p !== 'undefined') {
+            dispatch?.({
+                type: 'addPort',
+                id: device.id,
+                port: p,
+            });
+            closeModal()
+        }
     }
 
     return (
@@ -30,55 +65,7 @@ export default function AddPort ({ device, className, closeModal }: { device: De
             <div className="modal-box">
                 <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={ closeModal }>✕</button>
                 <form
-                    onSubmit={ e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if(!dispatch) throw new TypeError('Cannot dispatch action "addPort" as dispatch is null');
-                        let port
-                        switch(type) {
-                            case PortTypes.USB: {
-                                port = {
-                                    id: uuidv4(),
-                                    name,
-                                    type,
-                                    connector,
-                                    io: PortDirectionality.BIDIRECTIONAL,
-                                    host,
-                                } as UsbPort
-                                break;
-                            }
-                            case PortTypes.AUDIO: {
-                                port = {
-                                    id: uuidv4(),
-                                    name,
-                                    type,
-                                    subType,
-                                    connector,
-                                    io,
-                                } as AudioPort
-                                break;
-                            }
-                            case PortTypes.MIDI: {
-                                port = {
-                                    id: uuidv4(),
-                                    name,
-                                    type,
-                                    connector,
-                                    io,
-                                } as MidiPort
-                                break;
-                            }
-                        }
-                        if(typeof port !== 'undefined') {
-                            closeModal()
-                            resetForm();
-                            dispatch({
-                                type: 'addPort',
-                                id: device.id,
-                                port,
-                            });
-                        }
-                    }}
+                    onSubmit={ submitForm }
                 >
                     <div>
                         <h3 className="card-title">Add Port</h3>

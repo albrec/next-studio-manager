@@ -20,6 +20,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <nav className="flex justify-center menu menu-horizontal">
               <li><Link href="/">Home</Link></li>
               <li><Link href="devices">Devices</Link></li>
+              <li><Link href="connections">Connections</Link></li>
             </nav>
           </header>
           {children}

@@ -1,22 +1,29 @@
 import { useState } from "react";
-import { Device as DeviceType, PortTypes } from "../state/descriptions";
+import { Device, PortTypes } from "../state/descriptions";
 import { useDevicesDispatch } from "../state/deviceContext";
-import AddPort from "./addPort";
+import PortForm from "./portForm";
 import classNames from "classnames";
+import DeviceForm from "./deviceForm";
 
-export default function Device ({ device }: { device: DeviceType }) {
+export default function DeviceListing ({ device }: { device: Device }) {
     const dispatch = useDevicesDispatch()
-    const [modalOpen, setModalOpen] = useState(false)
+    const [portModalOpen, setPortModalOpen] = useState(false)
+    const [deviceModalOpen, setDeviceModalOpen] = useState(false)
 
     return (
         <li
             className="border-2 p-8"
             key={ device.id }
         >
-            <h4 className="card-title">{ device.name } | <button className="btn" onClick={ e => setModalOpen(true) }>Add Port</button> | <button className="btn" onClick={e => dispatch && dispatch({ type: 'delete', id: device.id })}>Delete</button></h4>
+            <h4 className="card-title">{ device.name } 
+            | <button className="btn" onClick={ e => setPortModalOpen(true) }>Add Port</button> 
+            | <button className="btn" onClick={ e => { setDeviceModalOpen(true) } }>Edit</button>
+            | <button className="btn" onClick={e => dispatch?.({ type: 'delete', id: device.id })}>Delete</button></h4>
+
+            <DeviceForm device={ device } className={ classNames({ 'modal-open': deviceModalOpen })} closeModal={ () => setDeviceModalOpen(false) } />
 
             <h5>Ports:</h5>
-            <AddPort className={ classNames({ 'modal-open': modalOpen })} closeModal={ () => setModalOpen(false) } device={ device } />
+            <PortForm className={ classNames({ 'modal-open': portModalOpen })} closeModal={ () => setPortModalOpen(false) } device={ device } />
             <ul className="flex gap-4">
                 { device.ports && device.ports.map(port => (
                     <li className="shrink border-2 p-4" key={ port.id }>
@@ -29,7 +36,7 @@ export default function Device ({ device }: { device: DeviceType }) {
                         :
                             <div>IO: { port.io }</div>
                         }
-                        <button className="btn" onClick={e => dispatch && dispatch({ type: 'deletePort', id: device.id, portId: port.id })}>Delete</button>
+                        <button className="btn" onClick={ e => dispatch?.({ type: 'deletePort', id: device.id, portId: port.id }) }>Delete</button>
                     </li>
                 ))}
             </ul>

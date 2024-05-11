@@ -1,36 +1,47 @@
 import { v4 as uuidv4 } from 'uuid';
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useDevicesDispatch } from "../state/deviceContext";
 import classNames from 'classnames';
+import { Device } from '../state/descriptions';
 
-export default function AddDevice ({ className, closeModal }: { className: string, closeModal(): void }) {
-    const [name, setName] = useState('')
+export default function DeviceForm ({ device, className, closeModal }: { device?: Device, className: string, closeModal(): void }) {
+    const [name, setName] = useState(device?.name || '')
     const dispatch = useDevicesDispatch()
     const inputRef = useRef<HTMLInputElement>(null)
     useEffect(() => {
         inputRef.current?.focus()
     })
 
+    function submitForm(e: FormEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+        if(!!device) {
+            dispatch?.({
+                type: 'update',
+                device: {
+                    ...device,
+                    name,
+                }
+            })
+        } else {
+            dispatch?.({
+                type: 'add',
+                device: {
+                    id: uuidv4(),
+                    name,
+                    ports: []
+                }
+            })
+        }
+        closeModal()
+    }
+
     return (
         <dialog className={ classNames('modal', className ) }>
             <div className="modal-box">
                 <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={ e => { e.stopPropagation; e.preventDefault; closeModal(); return false } }>✕</button>
                 <form
-                    onSubmit={ e => {
-                        if(!dispatch) throw new TypeError('Cannot dispatch action "add" as dispatch is null')
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setName('');
-                        closeModal()
-                        dispatch({
-                            type: 'add',
-                            device: {
-                                id: uuidv4(),
-                                name,
-                                ports: []
-                            }
-                        });
-                    }}
+                    onSubmit={ submitForm }
                 >
                     <div>
                 
@@ -46,7 +57,7 @@ export default function AddDevice ({ className, closeModal }: { className: strin
                             />
                         </label>
                 
-                        <button className='btn'>Add</button>
+                        <button className='btn'>{ !!device ? 'Update' : 'Add' }</button>
                     </div>
                 </form>
             </div>

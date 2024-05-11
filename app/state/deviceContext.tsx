@@ -1,8 +1,10 @@
-import { Dispatch, createContext, useContext, useReducer } from 'react';
+import { Dispatch, createContext, useContext, useEffect, useReducer } from 'react';
 import type { Device, Port } from './descriptions';
 
 const DevicesContext = createContext<Device[] | null>(null);
 const DevicesDispatchContext = createContext<Dispatch<DeviceActions> | null>(null);
+
+const DEVICE_KEY = 'devices'
 
 export function useDevices() {
   return useContext(DevicesContext);
@@ -13,8 +15,22 @@ export function useDevicesDispatch() {
 }
 
 
+/**
+ * The `DevicesProvider` function is a React component that provides device data and dispatch
+ * functionality to its children using context.
+ * @param  - The `DevicesProvider` component is a React component that uses the `useReducer` hook to
+ * manage state for a list of devices. It creates a context provider with two contexts:
+ * `DevicesContext` and `DevicesDispatchContext`. The `devices` state is managed by the
+ * `devicesReducer` function
+ * @returns The `DevicesProvider` component is returning the `children` wrapped inside
+ * `DevicesContext.Provider` and `DevicesDispatchContext.Provider`, providing the `devices` state and
+ * `dispatch` function to its children components.
+ */
 export function DevicesProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [devices, dispatch] = useReducer( devicesReducer, [] );
+  const [devices, dispatch] = useReducer( devicesReducer, initialState, initializeDevices );
+  useEffect(() => {
+    localStorage.setItem(DEVICE_KEY, JSON.stringify(devices));
+  }, [devices])
   
   return (
     <DevicesContext.Provider value={ devices }>
@@ -25,7 +41,24 @@ export function DevicesProvider({ children }: Readonly<{ children: React.ReactNo
   );
 }
 
+const initialState: Device[] = []
 
+function initializeDevices(initData = initialState) {
+  const deviceData = localStorage.getItem(DEVICE_KEY)
+  return deviceData ? JSON.parse(deviceData) : initData
+}
+
+
+/**
+ * The above type defines various actions that can be performed on devices and ports in a TypeScript
+ * React application.
+ * @property type - The `type` property in the code snippet you provided is used to differentiate
+ * between different types of actions that can be performed on devices and ports. It is a string
+ * literal type that specifies the specific action being taken, such as adding a device, updating a
+ * device, deleting a device, adding a port
+ * @property {Device} device - The `device` property refers to an object of type `Device`. It is used
+ * in the `AddDevice` and `UpdateDevice` actions to add or update a device in a system.
+ */
 type AddDevice = { type: 'add', device: Device }
 type UpdateDevice = { type: 'update', device: Device }
 type DeleteDevice = { type: 'delete', id: string }
@@ -34,6 +67,23 @@ type UpdatePort = { type: 'updatePort', id: string, port: Port }
 type DeletePort = { type: 'deletePort', id: string, portId: string }
 type DeviceActions = AddDevice | UpdateDevice | DeleteDevice | AddPort | UpdatePort | DeletePort
 
+
+/**
+ * The function `devicesReducer` is a reducer function in TypeScript React that handles various actions
+ * such as adding, updating, and deleting devices and ports in a device list.
+ * @param {Device[]} devices - The `devices` parameter in the `devicesReducer` function is an array of
+ * `Device` objects. Each `Device` object represents a device with properties like `id`, `name`, and
+ * `ports`. The reducer function takes this array of devices and performs different actions based on
+ * the `DeviceActions
+ * @param {DeviceActions} action - The `action` parameter in the `devicesReducer` function represents
+ * an object that contains information about the action being dispatched. It has a `type` property that
+ * specifies the type of action being performed, such as 'add', 'update', 'delete', 'addPort',
+ * 'updatePort', or
+ * @returns The `devicesReducer` function returns an updated array of devices based on the action type
+ * provided. The function handles actions such as adding a device, updating a device, deleting a
+ * device, adding a port to a device, updating a port on a device, and deleting a port from a device.
+ * The function returns the updated array of devices after applying the corresponding action.
+ */
 function devicesReducer(devices: Device[], action: DeviceActions): Device[] {
   switch (action.type) {
     case 'add': {

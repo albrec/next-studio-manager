@@ -13,52 +13,10 @@ export default function PortForm ({ port, device, className, closeModal }: { por
     const [host, setHost] = useState(port?.type === PortTypes.USB && port?.host ? port.host : false)
     const dispatch = useDevicesDispatch()
     const inputRef = useRef<HTMLInputElement>(null)
+
     useEffect(() => {
         inputRef.current?.focus()
     })
-
-    function submitForm(e: FormEvent) {
-        e.preventDefault();
-        e.stopPropagation();
-        let p = {
-            id: port?.id || uuidv4(),
-            name,
-            type,
-            connector,
-            io,
-        }
-        switch(type) {
-            case PortTypes.USB: {
-                p = {
-                    ...p,
-                    io: PortDirectionality.BIDIRECTIONAL,
-                    host,
-                } as UsbPort
-                break;
-            }
-            case PortTypes.AUDIO: {
-                p = {
-                    ...p,
-                    subType,
-                } as AudioPort
-                break;
-            }
-            case PortTypes.MIDI: {
-                p = {
-                    ...p,
-                } as MidiPort
-                break;
-            }
-        }
-        if(typeof p !== 'undefined') {
-            dispatch?.({
-                type: 'addPort',
-                id: device.id,
-                port: p,
-            });
-            closeModal()
-        }
-    }
 
     return (
         <dialog className={ classNames('modal', className)}>
@@ -68,7 +26,7 @@ export default function PortForm ({ port, device, className, closeModal }: { por
                     onSubmit={ submitForm }
                 >
                     <div>
-                        <h3 className="card-title">Add Port</h3>
+                        <h3 className="card-title">{ port ? 'Update' : 'Add' } Port</h3>
                         <label className="input input-bordered flex items-center gap-2">
                             Name
                             <input
@@ -77,6 +35,7 @@ export default function PortForm ({ port, device, className, closeModal }: { por
                                 value={ name }
                                 onChange={ e => setName(e.target.value) }
                                 ref={ inputRef }
+                                required
                             />
                 
                         </label>
@@ -119,7 +78,7 @@ export default function PortForm ({ port, device, className, closeModal }: { por
                         }
                 
 
-                        <button className='btn'>Add</button>
+                        <button className='btn'>{ port ? 'Update' : 'Add' }</button>
                     </div>
                 </form>
             </div>
@@ -134,7 +93,7 @@ export default function PortForm ({ port, device, className, closeModal }: { por
         return (
             <select
                 onChange={ e => setType(e.target.value as PortTypes) }
-                value={ type }
+                value={ type || undefined }
                 required
             >
                 <option value="">--Select a type--</option>
@@ -150,7 +109,7 @@ export default function PortForm ({ port, device, className, closeModal }: { por
         return (
             <select
                 onChange={ e => setSubType(e.target.value as AudioPortSubTypes) }
-                value={ subType }
+                value={ subType || undefined }
                 required
             >
                 <option value="">--Select audio port type--</option>
@@ -184,10 +143,10 @@ export default function PortForm ({ port, device, className, closeModal }: { por
         return (
             <select
                 onChange={ e => setConnector(e.target.value) }
-                value={ connector }
+                value={ connector || undefined }
                 required
             >
-                <option>--Select a connector--</option>
+                <option value="">--Select a connector--</option>
                 { connectors?.map(connector => (
                     <option key={ `connector_${connector}`} value={ connector }>{ connector }</option>
                 ))}
@@ -224,16 +183,57 @@ export default function PortForm ({ port, device, className, closeModal }: { por
             ) : (
                 <select
                     onChange={ e => setIo(e.target.value as PortDirectionality) }
-                    value={ io }
+                    value={ io || undefined }
                     required
                 >
-                    <option>--Select an IO direction--</option>
+                    <option value="">--Select an IO direction--</option>
                     { directions?.map(direction => (
                         <option key={ `direction_${direction}`} value={ direction }>{ direction }</option>
                     ))}
                 </select>
             )
         )
+    }
+
+    function submitForm(e: FormEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+        let p = {
+            id: port?.id || uuidv4(),
+            name,
+            type,
+            connector,
+            io,
+        } as Port
+        switch(type) {
+            case PortTypes.USB: {
+                p = {
+                    ...p,
+                    io: PortDirectionality.BIDIRECTIONAL,
+                    host,
+                } as UsbPort
+                break;
+            }
+            case PortTypes.AUDIO: {
+                p = {
+                    ...p,
+                    subType,
+                } as AudioPort
+                break;
+            }
+            case PortTypes.MIDI: {
+                p = {
+                    ...p,
+                } as MidiPort
+                break;
+            }
+        }
+        dispatch?.({
+            type: port ? 'updatePort' : 'addPort',
+            id: device.id,
+            port: p,
+        });
+        closeModal()
     }
 }
 

@@ -116,8 +116,8 @@ function devicesReducer(devices: Device[], action: DeviceActions): Device[] {
     case 'updatePort': {
       return devices.map(d => {
         if(d.id === action.id) {
-          d.ports.map(p => {
-            if(p.id === action.id) {
+          d.ports = d.ports.map(p => {
+            if(p.id === action.port.id) {
               return action.port
             } else {
               return p

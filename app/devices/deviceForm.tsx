@@ -2,14 +2,16 @@ import { v4 as uuidv4 } from 'uuid'
 import { FormEvent, useEffect, useRef, useState } from "react"
 import { useDevicesDispatch } from "../state/deviceContext"
 import { Device } from '../state/descriptions'
+import { Box, Button, Dialog, DialogTitle, FormControl, IconButton, InputLabel, TextField, Typography } from '@mui/material'
+import { Close } from '@mui/icons-material'
 
-export default function DeviceForm ({ device, className, closeModal }: { device?: Device, className: string, closeModal(): void }) {
+export default function DeviceForm ({ device, open, onClose }: { device?: Device, open: boolean, onClose(): void }) {
     const [name, setName] = useState(device?.name || '')
     const dispatch = useDevicesDispatch()
-    const inputRef = useRef<HTMLInputElement>(null)
-    useEffect(() => {
-        inputRef.current?.focus()
-    })
+
+    function closeModal() {
+        onClose()
+    }
 
     function submitForm(e: FormEvent) {
         e.preventDefault()
@@ -36,34 +38,29 @@ export default function DeviceForm ({ device, className, closeModal }: { device?
     }
 
     return (
-        <dialog>
-            <div>
-                <button onClick={ e => { e.stopPropagation; e.preventDefault; closeModal(); return false } }>✕</button>
-                <form
-                    onSubmit={ submitForm }
-                >
-                    <div className="flex flex-col gap-3">
-                
-                        <h3>{ !!device ? 'Update' : 'Add' } Device</h3>
-                        <label className="flex items-center gap-2">
-                            Name
-                            <input
-                                type="text"
-                                placeholder="Name of device"
-                                value={ name }
-                                onChange={ e => setName(e.target.value) }
-                                ref={ inputRef }
-                                required
-                            />
-                        </label>
-                
-                        <button>{ !!device ? 'Update' : 'Add' }</button>
-                    </div>
+        <Dialog open={ open } onClose={ onClose }>
+            <Box className="p-12">
+                <DialogTitle className="pl-0" variant='h2'>{ !!device ? 'Update' : 'Add' } Device</DialogTitle>
+                <form className="flex items-center gap-2" onSubmit={ submitForm }>
+                    <TextField
+                        label="Name"
+                        placeholder="Name of device"
+                        value={ name }
+                        onChange={ e => setName(e.target.value) }
+                        required
+                        autoFocus={ true }
+                    />
+                    <Button variant="contained" size="large" onClick={ submitForm }>{ !!device ? 'Update' : 'Add' }</Button>
                 </form>
-            </div>
-            <form method="dialog">
-                <button onClick={ closeModal }>close</button>
-            </form>
-        </dialog>
+            </Box>
+            <IconButton
+                className="absolute top-2 right-2" 
+                size="small" 
+                aria-label="close"
+                onClick={ closeModal }
+            >
+                <Close />
+            </IconButton>
+        </Dialog>
     )
 }

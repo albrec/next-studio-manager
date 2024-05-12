@@ -1,3 +1,5 @@
+'use client'
+
 import { Dispatch, createContext, useContext, useEffect, useReducer } from 'react'
 import type { Device, Port } from './descriptions'
 
@@ -28,10 +30,11 @@ export function useDevicesDispatch() {
  */
 export function DevicesProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [devices, dispatch] = useReducer( devicesReducer, initialState, initializeDevices )
-  useEffect(() => {
-    localStorage.setItem(DEVICE_KEY, JSON.stringify(devices))
-  }, [devices])
   
+  useEffect(() => {
+    localStorage?.setItem(DEVICE_KEY, JSON.stringify(devices))
+  }, [devices])
+
   return (
     <DevicesContext.Provider value={ devices }>
       <DevicesDispatchContext.Provider value={ dispatch }>
@@ -44,7 +47,7 @@ export function DevicesProvider({ children }: Readonly<{ children: React.ReactNo
 const initialState: Device[] = []
 
 function initializeDevices(initData = initialState) {
-  const deviceData = localStorage.getItem(DEVICE_KEY)
+  const deviceData = localStorage?.getItem(DEVICE_KEY)
   return deviceData ? JSON.parse(deviceData) : initData
 }
 

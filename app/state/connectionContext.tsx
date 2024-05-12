@@ -1,4 +1,6 @@
-import { Dispatch, createContext, useContext, useReducer } from 'react'
+'use client'
+
+import { Dispatch, createContext, useContext, useEffect, useReducer } from 'react'
 import type { Port, Connection } from './descriptions'
 
 const ConnectionsContext = createContext<Connection[] | null>(null)
@@ -18,6 +20,10 @@ export function useConnectionsDispatch() {
 export function ConnectionsProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [connections, dispatch] = useReducer( connectionReducer, initialState, initializeConnections)
   
+  useEffect(() => {
+    localStorage?.setItem(CONNECTION_KEY, JSON.stringify(connections))
+  }, [connections])
+  
   return (
     <ConnectionsContext.Provider value={ connections }>
       <ConnectionsDispatchContext.Provider value={ dispatch }>
@@ -30,7 +36,7 @@ export function ConnectionsProvider({ children }: Readonly<{ children: React.Rea
 const initialState: Connection[] = []
 
 function initializeConnections(initData = initialState) {
-  const deviceData = localStorage.getItem(CONNECTION_KEY)
+  const deviceData = localStorage?.getItem(CONNECTION_KEY)
   return deviceData ? JSON.parse(deviceData) : initData
 }
 

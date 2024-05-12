@@ -1,17 +1,18 @@
 import type { Metadata } from "next"
-import Link from "next/link"
-import { Inter } from "next/font/google"
+import NextLink from "next/link"
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 import classNames from "classnames"
-import { ThemeProvider } from '@mui/material/styles'
+import { Button, ButtonGroup, CssBaseline, Typography, ThemeProvider } from "@mui/material"
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 
+
+import theme from "./theme"
 import "./globals.css"
-import ContextWrapper from "./contextWrappers"
 
-const inter = Inter({ subsets: ["latin"] })
+import ContextWrapper from "./contextWrappers"
 
 export const metadata: Metadata = {
   title: { default: "Next Studio Manager", template: "%s | Next Studio Manager" },
@@ -21,18 +22,26 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+      </head>
       <ContextWrapper>
-        <body className={ classNames(inter.className, 'px-12') }>
-          <header className="flex flex-col items-center">
-            <h1 className="text-4xl font-thin">Next Studio Manager</h1>
-            <nav className="flex justify-center menu menu-horizontal">
-              <li><Link href="/">Home</Link></li>
-              <li><Link href="devices">Devices</Link></li>
-              <li><Link href="connections">Connections</Link></li>
-            </nav>
-          </header>
-          {children}
-        </body>
+        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+          <ThemeProvider theme={ theme }>
+            <CssBaseline />
+            <body className={ classNames('px-12') }>
+              <header className="flex flex-col items-center mb-12">
+                <Typography className="font-thin" variant="h3">Next Studio Manager</Typography>
+                <ButtonGroup className="flex justify-center">
+                  <Button component={ NextLink } href="/">Home</Button>
+                  <Button component={ NextLink } href="/devices">Devices</Button>
+                  <Button component={ NextLink } href="/connections">Connections</Button>
+                </ButtonGroup>
+              </header>
+              {children}
+            </body>
+          </ThemeProvider>
+        </AppRouterCacheProvider>
       </ContextWrapper>
     </html>
   )

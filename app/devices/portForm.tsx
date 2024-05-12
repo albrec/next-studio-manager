@@ -3,120 +3,119 @@ import { FormEvent, useState } from "react"
 import { useDevicesDispatch } from "../state/deviceContext"
 import { AudioPort, AudioPortSubTypes, Device, MidiPort, Port, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions'
 import classNames from 'classnames'
+import { Box, Button, Checkbox, Dialog, DialogTitle, FormControl, FormControlLabel, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import { Close } from '@mui/icons-material'
 
-export default function PortForm ({ port, device, className, closeModal }: { port?: Port | null, device: Device, className: string, closeModal(): void }) {
+export default function PortForm ({ port, device, open, onClose }: { port?: Port | null, device: Device, open: boolean, onClose(): void }) {
     const [name, setName] = useState(port?.name || '')
     const [type, setType] = useState(port?.type || '')
     const [subType, setSubType] = useState(port?.type === PortTypes.AUDIO && port?.subType ? port.subType : '')
     const [connector, setConnector] = useState(port?.connector || '')
     const [io, setIo] = useState(port?.io || '')
     const [host, setHost] = useState(port?.type === PortTypes.USB && port?.host ? port.host : false)
+    const [submitted, setSubmitted] = useState(false)
     const dispatch = useDevicesDispatch()
 
+    function closeModal() {
+        onClose()
+    }
+
     return (
-        <dialog className={ classNames('modal', className)}>
-            <div>
-                <button onClick={ closeModal }>✕</button>
+        <Dialog open={ open } onClose={ onClose }>
+            <Box className="p-12">
                 <form
                     onSubmit={ submitForm }
+                    noValidate
                 >
-                    <div className="flex flex-col gap-3">
-                        <h3>{ port ? 'Update' : 'Add' } Port</h3>
-                        <label className="flex items-center gap-2">
-                            Type
-                            <TypeSelect />
-                        </label>
+                    <Box className="flex flex-col gap-3">
+                        <DialogTitle className="pl-0" variant="h3">{ port ? 'Update' : 'Add' } Port</DialogTitle>
+                        <TypeSelect />
 
                         { (type === PortTypes.USB ) ?
-                            <label className="flex items-center gap-2">
-                                USB Host Port
-                                <input
-                                    type="checkbox"
-                                    onChange={ e => setHost(!host) }
-                                    checked={ host }
-                                />
-                            </label>
+                            <FormControlLabel control={ <Checkbox onChange={ e => setHost(!host) } checked={ host } /> } label="USB Host Port" />
                          :
-                            !!type && 
-                            <label className="flex items-center gap-2">
-                                IO
-                                <IoSelect />
-                            </label>
+                            !!type && <IoSelect />
                         }
 
 
-                        { !!type && type === PortTypes.AUDIO && 
-                            <label className="flex items-center gap-2">
-                                SubType
-                                <SubTypeSelect />
-                            </label>
-                        }
+                        { !!type && type === PortTypes.AUDIO && <SubTypeSelect /> }
 
 
-                        { !!type && (type === PortTypes.MIDI || type === PortTypes.USB || (type === PortTypes.AUDIO && !!subType)) && 
-                            <label className="flex items-center gap-2">
-                                Connector
-                                <ConnectorSelect />
-                            </label>
-                        }
+                        { !!type && (type === PortTypes.MIDI || type === PortTypes.USB || (type === PortTypes.AUDIO && !!subType)) && <ConnectorSelect /> }
 
-                        <label className="flex items-center gap-2">
-                            Name
-                            <input
-                                type="text"
-                                placeholder="Name of port"
-                                value={ name || deriveName() }
-                                onChange={ e => setName(e.target.value) }
-                                required
-                            />
-                
-                        </label>
-                
+                        <TextField
+                            label=" Port Name "
+                            placeholder="Name of port"
+                            value={ name || deriveName() }
+                            onChange={ e => setName(e.target.value) }
+                            required
+                            error={ submitted && !(name || deriveName()) }
+                        />
 
-                        <button>{ port ? 'Update' : 'Add' }</button>
-                    </div>
+                        <Button variant="contained" onClick={ submitForm }>{ port ? 'Update' : 'Add' }</Button>
+                    </Box>
                 </form>
-            </div>
-            <form method="dialog">
-                <button onClick={ closeModal }>close</button>
-            </form>
-        </dialog>
+            </Box>
+            <IconButton
+                className="absolute top-2 right-2" 
+                size="small" 
+                aria-label="close"
+                onClick={ closeModal }
+            >
+                <Close />
+            </IconButton>
+        </Dialog>
     )
 
 
     function TypeSelect () {
+        const [blurred, setBlurred] = useState(false)
+        const label = "Port Type"
+
         return (
-            <select
-                onChange={ e => setType(e.target.value as PortTypes) }
-                value={ type || undefined }
-                required
-            >
-                <option value="">--Select a type--</option>
-                <option value={ PortTypes.AUDIO }>{ PortTypes.AUDIO }</option>
-                <option value={ PortTypes.MIDI }>{ PortTypes.MIDI }</option>
-                <option value={ PortTypes.USB }>{ PortTypes.USB }</option>
-            </select>
+            <FormControl>
+                <InputLabel>{ label }</InputLabel>
+                <Select
+                    label={ label }
+                    onChange={ e => setType(e.target.value as PortTypes) }
+                    onBlur={ e => setBlurred(true) }
+                    value={ type }
+                    error={ (submitted || blurred) && !type }
+                >
+                    <MenuItem value={ PortTypes.AUDIO }>{ PortTypes.AUDIO }</MenuItem>
+                    <MenuItem value={ PortTypes.MIDI }>{ PortTypes.MIDI }</MenuItem>
+                    <MenuItem value={ PortTypes.USB }>{ PortTypes.USB }</MenuItem>
+                </Select>
+            </FormControl>
         )
     }
 
 
     function SubTypeSelect () {
+        const [blurred, setBlurred] = useState(false)
+        const label = "Audio Connection Type"
+
         return (
-            <select
-                onChange={ e => setSubType(e.target.value as AudioPortSubTypes) }
-                value={ subType || undefined }
-                required
-            >
-                <option value="">--Select audio port type--</option>
-                <option value={ AudioPortSubTypes.BALANCED }>{ AudioPortSubTypes.BALANCED }</option>
-                <option value={ AudioPortSubTypes.UNBALANCED }>{ AudioPortSubTypes.UNBALANCED }</option>
-                <option value={ AudioPortSubTypes.STEREO }>{ AudioPortSubTypes.STEREO }</option>
-            </select>
+            <FormControl>
+                <InputLabel>{ label }</InputLabel>
+                <Select
+                    label={ label }
+                    onChange={ e => setSubType(e.target.value as AudioPortSubTypes) }
+                    onBlur={ e => setBlurred(true) }
+                    value={ subType }
+                    error={ (submitted || blurred) && !subType }
+                >
+                    <MenuItem value={ AudioPortSubTypes.BALANCED }>{ AudioPortSubTypes.BALANCED }</MenuItem>
+                    <MenuItem value={ AudioPortSubTypes.UNBALANCED }>{ AudioPortSubTypes.UNBALANCED }</MenuItem>
+                    <MenuItem value={ AudioPortSubTypes.STEREO }>{ AudioPortSubTypes.STEREO }</MenuItem>
+                </Select>
+            </FormControl>
         )
     }
 
 
     function ConnectorSelect () {
+        const [blurred, setBlurred] = useState(false)
         const subTypeSelected = !!subType
         let connectors
     
@@ -134,24 +133,30 @@ export default function PortForm ({ port, device, className, closeModal }: { por
                 break
             }
         }
+        const label = "Connector"
         
         return (
-            <select
-                onChange={ e => setConnector(e.target.value) }
-                value={ connector || undefined }
-                required
-            >
-                <option value="">--Select a connector--</option>
-                { connectors?.map(connector => (
-                    <option key={ `connector_${connector}`} value={ connector }>{ connector }</option>
-                ))}
-            </select>
+            <FormControl>
+                <InputLabel>{ label }</InputLabel>
+                <Select
+                    label={ label }
+                    onChange={ e => setConnector(e.target.value) }
+                    onBlur={ e => setBlurred(true) }
+                    value={ connector }
+                    error={ (submitted || blurred) && !connector }
+                >
+                    { connectors?.map(connector => (
+                        <MenuItem key={ `connector_${connector}`} value={ connector }>{ connector }</MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
         )
     }
 
 
 
     function IoSelect () {
+        const [blurred, setBlurred] = useState(false)
         const typeSelected = !!type
         let directions
     
@@ -169,26 +174,49 @@ export default function PortForm ({ port, device, className, closeModal }: { por
                 break
             }
         }
+        const label = "Signal Direction"
         
         return (
-            (!typeSelected) ? (
-                <select>
-                    <option>--Please select a type first--</option>
-                </select>
-            ) : (
-                <select
+            <FormControl>
+                <InputLabel>{ label }</InputLabel>
+                <Select
+                    label={ label }
                     onChange={ e => setIo(e.target.value as PortDirectionality) }
-                    value={ io || undefined }
-                    required
+                    onBlur={ e => setBlurred(true) }
+                    value={ io }
+                    error={ (submitted || blurred) && !io }
                 >
-                    <option value="">--Select an IO direction--</option>
                     { directions?.map(direction => (
-                        <option key={ `direction_${direction}`} value={ direction }>{ direction }</option>
+                        <MenuItem key={ `direction_${direction}`} value={ direction }>{ direction }</MenuItem>
                     ))}
-                </select>
-            )
+                </Select>
+            </FormControl>
         )
     }
+
+    function deriveName() {
+        if(type === PortTypes.USB) {
+            return `USB ${host ? 'Host' : ''}`
+        } else {
+            return type && io ? `${type} ${io}` : ''
+        }
+    }
+
+
+
+    function portIsValid(port: Port) {
+        if(port.type === PortTypes.AUDIO && port.subType && port.io && port.connector && port.name) {
+            return true
+        } else if(port.type === PortTypes.MIDI && port.io && port.connector && port.name) {
+            return true
+        } else if(port.type === PortTypes.USB && port.connector && port.name) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+
 
     function submitForm(e: FormEvent) {
         e.preventDefault()
@@ -223,21 +251,17 @@ export default function PortForm ({ port, device, className, closeModal }: { por
                 break
             }
         }
-        dispatch?.({
-            type: port ? 'updatePort' : 'addPort',
-            id: device.id,
-            port: p,
-        })
-        closeModal()
-    }
-
-    function deriveName() {
-        if(type === PortTypes.USB) {
-            return `USB ${host ? 'Host' : ''}`
-        } else {
-            return type && io ? `${type} ${io}` : ''
+        if (portIsValid(p)) {
+            dispatch?.({
+                type: port ? 'updatePort' : 'addPort',
+                id: device.id,
+                port: p,
+            })
+            closeModal()
         }
+        setSubmitted(true)
     }
+    
 }
 
 

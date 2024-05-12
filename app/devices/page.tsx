@@ -6,6 +6,8 @@ import DevicesList from "./devicesList"
 import DeviceForm from "./deviceForm"
 import { useState } from "react"
 import classNames from "classnames"
+import { Box, Button, Typography } from "@mui/material"
+import { Add } from "@mui/icons-material"
 
 export default function Devices () {
   const [modalOpen, setModalOpen] = useState(false)
@@ -15,13 +17,13 @@ export default function Devices () {
         <title>Devices</title>
       </Head>
       <main>
-        <div className="flex items-center mb-8">
-          <h1>Devices</h1>
-          <button onClick={ e => { setModalOpen(true) } }>Add Device</button>
-        </div>
+        <Box className="flex items-center mb-8 gap-8">
+          <Typography variant="h1">Devices</Typography>
+          <Button variant="contained" endIcon={ <Add /> } onClick={ e => { setModalOpen(true) } }>Add Device</Button>
+        </Box>
         
         
-        <DeviceForm className={ classNames({ 'modal-open': modalOpen })} closeModal={ () => setModalOpen(false) } />
+        { modalOpen && <DeviceForm open={ modalOpen } onClose={ () => setModalOpen(false) } /> }
         <DevicesList />
       </main>
     </>

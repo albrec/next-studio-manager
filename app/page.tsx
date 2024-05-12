@@ -1,15 +1,16 @@
 "use client"
 
+import { Typography } from "@mui/material"
 import Head from "next/head"
 
 export default function Home() {
   return (
     <>
       <Head>
-        <title>Home</title>  
+        <title>Welcome to your studio manager solution</title>  
       </Head>
       <main>
-        <h1>Next Studio Manager</h1>
+        <Typography variant="h1">Home</Typography>
       </main>
     </>
   )

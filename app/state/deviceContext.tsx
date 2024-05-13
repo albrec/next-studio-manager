@@ -1,6 +1,6 @@
 'use client'
 
-import { Dispatch, createContext, useContext, useEffect, useReducer } from 'react'
+import { Dispatch, createContext, useContext, useEffect, useReducer, useState } from 'react'
 import type { Device, Port } from './descriptions'
 
 const DevicesContext = createContext<Device[] | null>(null)
@@ -29,11 +29,21 @@ export function useDevicesDispatch() {
  * `dispatch` function to its children components.
  */
 export function DevicesProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [devices, dispatch] = useReducer( devicesReducer, initialState, initializeDevices )
+  const [loaded, setLoaded] = useState(false)
+  const [devices, dispatch] = useReducer( devicesReducer, initialState )
+
+  useEffect(() => {
+    if(!loaded) {
+      dispatch({ type: 'load', devices: getPersistedDevices() })
+      setLoaded(true)
+    }
+  }, [loaded])
   
   useEffect(() => {
-    localStorage?.setItem(DEVICE_KEY, JSON.stringify(devices))
-  }, [devices])
+    if(loaded) {
+      localStorage?.setItem(DEVICE_KEY, JSON.stringify(devices))
+    }
+  }, [devices, loaded])
 
   return (
     <DevicesContext.Provider value={ devices }>
@@ -46,9 +56,13 @@ export function DevicesProvider({ children }: Readonly<{ children: React.ReactNo
 
 const initialState: Device[] = []
 
-function initializeDevices(initData = initialState) {
-  const deviceData = localStorage?.getItem(DEVICE_KEY)
-  return deviceData ? JSON.parse(deviceData) : initData
+function getPersistedDevices(initData = initialState) {
+  let deviceData
+  if (typeof localStorage === 'object') {
+    const rawData = localStorage.getItem(DEVICE_KEY)
+    deviceData = rawData ? JSON.parse(rawData) : initData
+  }
+  return deviceData || initData
 }
 
 
@@ -62,13 +76,14 @@ function initializeDevices(initData = initialState) {
  * @property {Device} device - The `device` property refers to an object of type `Device`. It is used
  * in the `AddDevice` and `UpdateDevice` actions to add or update a device in a system.
  */
+type LoadDevices = { type: 'load', devices: Device[] }
 type AddDevice = { type: 'add', device: Device }
 type UpdateDevice = { type: 'update', device: Device }
 type DeleteDevice = { type: 'delete', id: string }
 type AddPort = { type: 'addPort', id: string, port: Port }
 type UpdatePort = { type: 'updatePort', id: string, port: Port }
 type DeletePort = { type: 'deletePort', id: string, portId: string }
-type DeviceActions = AddDevice | UpdateDevice | DeleteDevice | AddPort | UpdatePort | DeletePort
+type DeviceActions = LoadDevices | AddDevice | UpdateDevice | DeleteDevice | AddPort | UpdatePort | DeletePort
 
 
 /**
@@ -89,6 +104,9 @@ type DeviceActions = AddDevice | UpdateDevice | DeleteDevice | AddPort | UpdateP
  */
 function devicesReducer(devices: Device[], action: DeviceActions): Device[] {
   switch (action.type) {
+    case 'load': {
+      return action.devices
+    }
     case 'add': {
       return [...devices, action.device]
     }

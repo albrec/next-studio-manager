@@ -24,21 +24,54 @@
 }
 
 table.connection-grid {
+  font-size: 12px;
+  margin-top: 2rem;
+  border-collapse: collapse;
+  border-spacing: 0;
+
   td {
     border: 1px lightgray solid;
   }
 
   thead{
-    th {
-      rotate: -70deg;
-      transform-origin: left;
+    th.device {
+      text-align: center;
+      transform: translateX(.5em);
+    }
 
-      > span {
-        display: inline-block;
-        position: absolute;
-        left: .5rem;
-        bottom: 0;
-      }
+    th.port {
+      font-weight: 100;
+      text-wrap: nowrap;
+      text-align: left;
+      padding: .5em 0;
+      writing-mode: vertical-lr;
+      transform: translate(1em, 0) rotate(200deg);
+    }
+
+    td {
+      font-size: 16px;
+      border: none;
+      text-align: right;
+      vertical-align: bottom;
+      transform-origin: right;
+      transform: translate(10%, 15%) rotate(45deg);
+    }
+  }
+
+  tbody {
+    th {
+      text-align: right;
+      padding: 0 .5em;
+    }
+
+    th.device {
+      text-align: center;
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+    }
+
+    th.port {
+      font-weight: 100;
     }
   }
 }

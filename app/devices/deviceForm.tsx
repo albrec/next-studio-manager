@@ -48,7 +48,7 @@ export default function DeviceForm ({ device, open, onClose }: { device?: Device
                         value={ name }
                         onChange={ e => setName(e.target.value) }
                         required
-                        autoFocus={ true }
+                        autoFocus
                     />
                     <Button variant="contained" size="large" onClick={ submitForm }>{ !!device ? 'Update' : 'Add' }</Button>
                 </form>

@@ -2,6 +2,7 @@ import { Checkbox } from "@mui/material"
 import { Port, PortDirectionality, PortTypes } from "../state/descriptions"
 import { useDevices } from "../state/deviceContext"
 import { useState } from "react"
+import classNames from "classnames"
 
 export function ConnectionGrid () {
     const devices = useDevices()
@@ -23,34 +24,40 @@ export function ConnectionGrid () {
 
     return (
         <table className="connection-grid">
+            <colgroup>
+                <col className="output_headers" span={2} />
+                { inputDevices?.map(d => 
+                    <col className="device" key={ `device_col_${d.id}` } span={ d.inputPorts.length } />
+                )}
+            </colgroup>
             <thead>
                 <tr>
                     <td colSpan={2} rowSpan={2}>Connection Grid</td>
                     { inputDevices?.map(d =>
-                        <th className="device" key={ `inputs_${d.id}` } colSpan={ d.inputPorts.length }>{ d.name }</th>
+                        <th className="device" key={ `inputs_${d.id}` } colSpan={ d.inputPorts.length }><span>{ d.name }</span></th>
                     )}
                 </tr>
                 <tr>
-                    { inputDevices?.map(d => d.inputPorts.map(p => 
-                        <th className="port" key={ `input_port_${p.id}` }>{ p.name }</th>
+                    { inputDevices?.map(d => d.inputPorts.map((p, i, a) => 
+                        <th className={ classNames('port', { 'first-port': i === 0, 'last-port': i === a.length - 1 }) } key={ `input_port_${p.id}` }><span>{ p.name }</span></th>
                     ))}
                 </tr>
             </thead>
             <tbody>
-                { outputDevices?.map(d => d.outputPorts.map((p, i) => (
+                { outputDevices?.map((d, di) => d.outputPorts.map((p, i, a) => (
                     i < 1 ?
-                        <tr key={`output_port_${p.id}`}>
+                        <tr className={ classNames("first-port", !(di & 1) ? 'odd' : 'even') } key={`output_port_${p.id}`}>
                             <th className="device" rowSpan={ d.outputPorts.length }>{ d.name }</th>
                             <th className="port">{ p.name }</th>
                             { inputDevices?.map(d => d.inputPorts.map(i => 
-                                <td key={`connection_${p.id}_${i.id}`}><Checkbox size="small" sx={{ padding: 0, borderColor: 'transparent' }} /></td>
+                                <td key={`connection_${p.id}_${i.id}`}></td>
                             ))}
                         </tr>
                     :
-                        <tr key={`output_port_${p.id}`}>
+                        <tr className={ classNames({ 'last-port': i === a.length - 1 }, !(di & 1) ? 'odd' : 'even') } key={`output_port_${p.id}`}>
                             <th className="port">{ p.name }</th>
                             { inputDevices?.map(d => d.inputPorts.map(i => 
-                                <td key={`connection_${p.id}_${i.id}`}><Checkbox size="small" sx={{ padding: 0, borderColor: 'transparent' }} /></td>
+                                <td key={`connection_${p.id}_${i.id}`}></td>
                             ))}
                         </tr>
                     

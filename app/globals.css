@@ -5,15 +5,20 @@
 
 :root {
   --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --zebra-rgba: 0, 0, 0, 0.08;
+  --table-border-rgb: 127,127, 127;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
+    --background-rgb: 0, 0, 0;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
+    --zebra-rgba: 255, 255, 255, 0.15;
   }
 }
 
@@ -23,20 +28,52 @@
   }
 }
 
+body {
+  background-color: rgb(var(--background-rgb));
+  color: rgb(var(--foreground-rgb));
+}
+
 table.connection-grid {
   font-size: 12px;
   margin-top: 2rem;
   border-collapse: collapse;
   border-spacing: 0;
 
+  col:nth-of-type(even) {
+    background-color: rgba(var(--zebra-rgba));
+  }
+
   td {
-    border: 1px lightgray solid;
+    border: 1px rgb(var(--table-border-rgb)) solid;
   }
 
   thead{
+    background-color: rgb(var(--background-rgb));
+
     th.device {
-      text-align: center;
-      transform: translateX(.5em);
+      position: relative;
+      text-align: right;
+      text-wrap: nowrap;
+      padding: .5em 0;
+      writing-mode: vertical-lr;
+      transform: translate(3.6em, 0) rotate(180deg) skew(-20deg);
+
+      &::after {
+        content: '';
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 1px solid rgb(var(--table-border-rgb));
+        border-width: 0 1px;
+      }
+
+      > span {
+        display: inline-block;
+        transform: rotate(20deg) skew(20deg);
+      }
     }
 
     th.port {
@@ -45,7 +82,32 @@ table.connection-grid {
       text-align: left;
       padding: .5em 0;
       writing-mode: vertical-lr;
-      transform: translate(1em, 0) rotate(200deg);
+      transform: translate(1.25em, 0) rotate(180deg) skew(-20deg);
+
+      &.first-port::after,
+      &.last-port::after {
+        content: '';
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0 solid rgb(var(--table-border-rgb));
+      }
+
+      &.first-port::after {
+        border-right-width: 1px;
+      }
+
+      &.last-port::after {
+        border-left-width: 1px;
+      }
+
+      > span {
+        display: inline-block;
+        transform: rotate(20deg) skew(20deg);
+      }
     }
 
     td {
@@ -54,12 +116,30 @@ table.connection-grid {
       text-align: right;
       vertical-align: bottom;
       transform-origin: right;
-      transform: translate(10%, 15%) rotate(45deg);
+      transform: translate(25%, 15%) rotate(45deg);
     }
   }
 
   tbody {
+    tr.first-port,
+    tr.last-port {
+      border: 0 solid rgb(var(--table-border-rgb));
+    }
+
+    tr.odd {
+      background: rgba(var(--zebra-rgba))
+    }
+
+    tr.first-port {
+      border-top-width: 1px;
+    }
+
+    tr.last-port {
+      border-bottom-width: 1px;
+    }
+
     th {
+      background-color: rgb(var(--background-rgb));
       text-align: right;
       padding: 0 .5em;
     }

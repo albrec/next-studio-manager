@@ -9,7 +9,8 @@
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
   --zebra-rgba: 0, 0, 0, 0.08;
-  --table-border-rgb: 127,127, 127;
+  --table-border-rgb: 127, 127, 127;
+  --table-hover-row-rgba: 0, 0, 255, 0.2;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -54,9 +55,8 @@ table.connection-grid {
       position: relative;
       text-align: right;
       text-wrap: nowrap;
-      padding: .5em 0;
       writing-mode: vertical-lr;
-      transform: translate(3.6em, 0) rotate(180deg) skew(-20deg);
+      transform: translate(4.65em, 0) rotate(180deg) skew(-20deg);
 
       &::after {
         content: '';
@@ -73,6 +73,7 @@ table.connection-grid {
       > span {
         display: inline-block;
         transform: rotate(20deg) skew(20deg);
+        padding: .75em 0;
       }
     }
 
@@ -80,9 +81,8 @@ table.connection-grid {
       font-weight: 100;
       text-wrap: nowrap;
       text-align: left;
-      padding: .5em 0;
       writing-mode: vertical-lr;
-      transform: translate(1.25em, 0) rotate(180deg) skew(-20deg);
+      transform: translate(1.5em, 0) rotate(180deg) skew(-20deg);
 
       &.first-port::after,
       &.last-port::after {
@@ -107,6 +107,7 @@ table.connection-grid {
       > span {
         display: inline-block;
         transform: rotate(20deg) skew(20deg);
+        padding: .75em 0;
       }
     }
 
@@ -121,6 +122,11 @@ table.connection-grid {
   }
 
   tbody {
+    tr:hover th.port,
+    tr:hover td {
+      background-color: rgba(var(--table-hover-row-rgba));
+    }
+
     tr.first-port,
     tr.last-port {
       border: 0 solid rgb(var(--table-border-rgb));

@@ -5,7 +5,7 @@ import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 import classNames from "classnames"
-import { Button, ButtonGroup, CssBaseline, Typography, ThemeProvider } from "@mui/material"
+import { Button, ButtonGroup, CssBaseline, Typography, ThemeProvider, Box } from "@mui/material"
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 
 
@@ -13,6 +13,8 @@ import theme from "./theme"
 import "./globals.css"
 
 import ContextWrapper from "./contextWrappers"
+import { Save, Upload, UploadFile } from "@mui/icons-material"
+import SaveFile from "./components/saveFile"
 
 export const metadata: Metadata = {
   title: { default: "Next Studio Manager", template: "%s | Next Studio Manager" },
@@ -30,13 +32,16 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <ThemeProvider theme={ theme }>
             <CssBaseline />
             <body className={ classNames('px-12') }>
-              <header className="flex flex-col items-center mb-12">
+              <header className="flex flex-col items-center mb-12 relative">
                 <Typography className="font-thin" variant="h3">Next Studio Manager</Typography>
                 <ButtonGroup className="flex justify-center">
                   <Button component={ NextLink } href="/">Home</Button>
                   <Button component={ NextLink } href="/devices">Devices</Button>
                   <Button component={ NextLink } href="/connections">Connections</Button>
                 </ButtonGroup>
+                <Box className="absolute top-4 right-4">
+                  <SaveFile />
+                </Box>
               </header>
               {children}
             </body>
@@ -46,3 +51,5 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     </html>
   )
 }
+
+

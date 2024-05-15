@@ -187,6 +187,21 @@ table.connection-grid {
     tr:hover th.port {
       color: var(--foreground-rgb);
     }
+
+    td.connected {
+      position: relative;
+    }
+
+    td.connected:after {
+      content: '';
+      background-color: blue !important;
+      width: 100%;
+      height: 100%;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   }
 }
 

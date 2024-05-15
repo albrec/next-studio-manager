@@ -111,19 +111,25 @@ interface ConnectionBase {
     id: string
 }
 
-export type AudioConnection = ConnectionBase & {
-    inputPort: AudioPort extends { type: PortTypes.AUDIO, io: PortDirectionality.INPUT } ? AudioPort['id'] : never,
-    outputPort: AudioPort extends { type: PortTypes.AUDIO, io: PortDirectionality.OUTPUT } ? AudioPort['id'] : never,
-}
+// export type AudioConnection = ConnectionBase & {
+//     inputPort: AudioPort extends { type: PortTypes.AUDIO, io: PortDirectionality.INPUT } ? AudioPort['id'] : never,
+//     outputPort: AudioPort extends { type: PortTypes.AUDIO, io: PortDirectionality.OUTPUT } ? AudioPort['id'] : never,
+// }
 
-export type MidiConnection = ConnectionBase & {
-    inputPort: MidiPort extends { type: PortTypes.MIDI, io: PortDirectionality.INPUT } ? MidiPort['id'] : never,
-    outputPort: MidiPort extends { type: PortTypes.MIDI, io: PortDirectionality.OUTPUT } ? MidiPort['id'] : never,
-}
+// export type MidiConnection = ConnectionBase & {
+//     inputPort: MidiPort extends { type: PortTypes.MIDI, io: PortDirectionality.INPUT } ? MidiPort['id'] : never,
+//     outputPort: MidiPort extends { type: PortTypes.MIDI, io: PortDirectionality.OUTPUT } ? MidiPort['id'] : never,
+// }
 
-export type UsbConnection = ConnectionBase & {
-    hostPort: UsbPort extends { type: PortTypes.USB, host: true} ? UsbPort['id'] : never,
-    devicePort: UsbPort extends { type: PortTypes.USB, host: false } ? UsbPort['id'] : never,
-}
+// export type UsbConnection = ConnectionBase & {
+//     inputPort: UsbPort extends { type: PortTypes.USB, host: true} ? UsbPort['id'] : never,
+//     outputPort: UsbPort extends { type: PortTypes.USB, host: false } ? UsbPort['id'] : never,
+// }
 
-export type Connection = AudioConnection | MidiConnection | UsbConnection
+// export type Connection = AudioConnection | MidiConnection | UsbConnection
+
+export type Connection = {
+    id: string,
+    inputPort: Port,
+    outputPort: Port,
+}

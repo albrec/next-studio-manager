@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useState } from "react"
 import classNames from "classnames"
 import { getDeviceFromPort } from "../state/deviceSelectors"
 import { DeviceHub, Hub } from "@mui/icons-material"
+import { deriveConnectionId, useConnections, useConnectionsDispatch } from "../state/connectionContext"
 
 type PortIntersection = {
     input: Port,
@@ -13,7 +14,11 @@ type PortIntersection = {
 
 export function ConnectionGrid () {
     const devices = useDevices()
+    const connections = useConnections()
+    const dispatch = useConnectionsDispatch()
     const [hoveredConnection, setHoveredConnection] = useState<PortIntersection | null>(null)
+
+    const connectionMap = connections?.map(c => c.id)
 
     return (
         <>
@@ -82,12 +87,33 @@ export function ConnectionGrid () {
 
     function ConnectionNode({ portIntersection }: { portIntersection: PortIntersection }) {
         const { input, output } = portIntersection
+        const connectionId = deriveConnectionId({ input, output })
+
+        const isConnected = connectionMap?.includes(connectionId)
+
+        function toggleConnection() {
+            if(isConnected) {
+                dispatch?.({
+                    type: 'delete',
+                    id: connectionId,
+                })
+            } else {
+                dispatch?.({
+                    type: 'add',
+                    connection: {
+                        inputPort: input,
+                        outputPort: output,
+                    }
+                })
+            }
+        }
 
         return (
             <td
-                className={ classNames(`port-col-${input.id}`, `port-type-${input.type}`) }
+                className={ classNames(`port-col-${input.id}`, `port-type-${input.type}`, { connected: isConnected }) }
                 onMouseEnter= { e => setHoveredConnection(portIntersection) }
                 onMouseLeave={ e => setHoveredConnection(null) }
+                onClick={ toggleConnection }
             />
         )
     }

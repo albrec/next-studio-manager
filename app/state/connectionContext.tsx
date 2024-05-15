@@ -54,9 +54,10 @@ function getPersistedConnections(initData = initialState) {
   return connectionData || initData
 }
 
+type ConnectionPorts = { inputPort: Port, outputPort: Port }
 
 type LoadConnections = { type: 'load', connections: Connection[] }
-type AddConnection = { type: 'add', connection: Connection }
+type AddConnection = { type: 'add', connection: ConnectionPorts }
 type DeleteConnection = { type: 'delete', id: Connection['id'] }
 type ConnectionActions = LoadConnections | AddConnection | DeleteConnection
 
@@ -68,10 +69,18 @@ function connectionReducer(connections: Connection[], action: ConnectionActions)
       return action.connections
     }
     case 'add': {
-        return [...connections, action.connection]
+        const newConnection = {
+          ...action.connection,
+          id: deriveConnectionId({ output: action.connection.outputPort, input: action.connection.inputPort })
+        }
+        return [...connections, newConnection]
       }
       case 'delete': {
         return connections.filter(c => c.id !== action.id)
       }
   }
+}
+
+export function deriveConnectionId({ input, output }: { input: Port, output: Port }): Connection['id'] {
+  return output.id + input.id
 }

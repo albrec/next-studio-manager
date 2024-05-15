@@ -3,6 +3,8 @@ import { Port, PortDirectionality, PortTypes } from "../state/descriptions"
 import { useDevices } from "../state/deviceContext"
 import { Dispatch, SetStateAction, useState } from "react"
 import classNames from "classnames"
+import { getDeviceFromPort } from "../state/deviceSelectors"
+import { DeviceHub, Hub } from "@mui/icons-material"
 
 type PortIntersection = {
     input: Port,
@@ -10,6 +12,7 @@ type PortIntersection = {
 }
 
 export function ConnectionGrid () {
+    const devices = useDevices()
     const [hoveredConnection, setHoveredConnection] = useState<PortIntersection | null>(null)
 
     return (
@@ -20,7 +23,6 @@ export function ConnectionGrid () {
     )
 
     function GridTable({ setHoveredConnection }: { setHoveredConnection: Dispatch<SetStateAction<PortIntersection | null>> | null }) {
-        const devices = useDevices()
         const decoratedDevices = devices?.map(d => ({ 
             ...d,
             inputPorts: d.ports.filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)),
@@ -40,12 +42,13 @@ export function ConnectionGrid () {
                 </colgroup>
                 <thead>
                     <tr>
-                        <td colSpan={2} rowSpan={2}>Connection Grid</td>
+                        <td colSpan={2}></td>
                         { inputDevices?.map(d =>
-                            <th className="device" key={ `inputs_${d.id}` } colSpan={ d.inputPorts.length }><span>{ d.name }</span></th>
+                            <th className="device" id={ `input_device_${d.id}` } key={ `inputs_${d.id}` } colSpan={ d.inputPorts.length }><span>{ d.name }</span></th>
                         )}
                     </tr>
                     <tr>
+                        <td colSpan={2}><DeviceHub sx={{ fontSize: 72 }} /></td>
                         { inputDevices?.map(d => d.inputPorts.map((p, i, a) => 
                             <th className={ classNames('port', { 'first-port': i === 0, 'last-port': i === a.length - 1 }) } id={ `input_port_${p.id}` } key={ `input_port_${p.id}` }><span>{ p.name }</span></th>
                         ))}
@@ -55,7 +58,7 @@ export function ConnectionGrid () {
                     { outputDevices?.map((d, di) => d.outputPorts.map((p, i, a) => (
                         i < 1 ?
                             <tr className={ classNames("first-port", !(di & 1) ? 'odd' : 'even') } key={`output_port_${p.id}`}>
-                                <th className="device" rowSpan={ d.outputPorts.length }>{ d.name }</th>
+                                <th className="device" id={ `output_device_${d.id}` } rowSpan={ d.outputPorts.length }>{ d.name }</th>
                                 <th className="port">{ p.name }</th>
                                 { inputDevices?.map(d => d.inputPorts.map(inPort => 
                                     <ConnectionNode portIntersection={ { input: inPort, output: p } } key={`connection_${p.id}_${inPort.id}`} />
@@ -91,35 +94,41 @@ export function ConnectionGrid () {
 
     function HighlightStyles({ hoveredConnection }: { hoveredConnection: PortIntersection | null }) {
         const tableSelector = 'table.connection-grid'
-        const compatibleColor = '0, 255, 0'
-        const inCompatibleColor = '255, 0, 0'
+
+        if(!hoveredConnection || !devices) return null
+
+        const inputDevice = getDeviceFromPort({ devices, port: hoveredConnection.input })
+        const outputDevice = getDeviceFromPort({ devices, port: hoveredConnection.output })
         
-        return !!hoveredConnection ? (
+        return (
             <style>
                 { 
                     `
                     ${tableSelector} tbody tr:hover td.port-type-${hoveredConnection.output.type} {
-                        background-color: rgba(${compatibleColor}, 0.2);
+                        background-color: var(--table-compatible-color-light);
                     }
 
                     ${tableSelector} tbody tr:hover td:not(.port-type-${hoveredConnection.output.type}) {
-                        background-color: rgba(${inCompatibleColor}, 0.2);
+                        background-color: var(--table-incompatible-color-light);
                     }
 
                     ${tableSelector} td.port-col-${hoveredConnection.input.id} {
-                        background-color: rgba(${hoveredConnection.input.type === hoveredConnection.output.type ? compatibleColor : inCompatibleColor}, 0.2);
+                        background-color: var(--table-hover-color);
                     }
 
                     ${tableSelector} tr:hover td.port-col-${hoveredConnection.input.id} {
-                        background-color: rgba(${hoveredConnection.input.type === hoveredConnection.output.type ? compatibleColor : inCompatibleColor}, 0.8) !important;
+                        background-color: var(${hoveredConnection.input.type === hoveredConnection.output.type ? '--table-compatible-color' : '--table-incompatible-color'}) !important;
                     }
 
-                    ${tableSelector} #input_port_${hoveredConnection.input.id} {
-                        background-color: rgba(0, 0, 255, 0.2) !important;
+                    ${tableSelector} #input_port_${hoveredConnection.input.id},
+                    ${tableSelector} #input_device_${inputDevice?.id || 'unknown_devices'},
+                    ${tableSelector} #output_device_${outputDevice?.id || 'unknown_devices'} {
+                        background-color: var(--table-hover-color) !important;
+                        color: var(--foreground-rgb);
                     }
                     `
                 }
             </style>
-        ) : null
+        )
     }
 }

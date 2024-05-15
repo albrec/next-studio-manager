@@ -10,7 +10,13 @@
   --background-end-rgb: 255, 255, 255;
   --zebra-rgba: 0, 0, 0, 0.08;
   --table-border-rgb: 127, 127, 127;
-  --table-hover-row-rgba: 0, 0, 255, 0.2;
+  --table-hover-color: rgb(180, 190, 255);
+  --table-compatible-color: rgb(50, 255, 40);
+  --table-compatible-color-light: rgb(from var(--table-compatible-color) r g b / 0.2);
+  --table-incompatible-color: rgb(255, 40, 40);
+  --table-incompatible-color-light: rgb(from var(--table-incompatible-color) r g b / 0.2);
+  --port-weight: 400;
+  --low-contract-text: rgb(128, 127, 127);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,6 +26,8 @@
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
     --zebra-rgba: 255, 255, 255, 0.15;
+    --table-hover-color: rgb(65, 68, 91);
+    /* --low-contract-text: rgb(180, 180, 180); */
   }
 }
 
@@ -51,6 +59,13 @@ table.connection-grid {
   thead{
     background-color: rgb(var(--background-rgb));
 
+    th, td {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: rgb(var(--background-rgb));
+    }
+
     th.device {
       position: relative;
       text-align: right;
@@ -78,7 +93,8 @@ table.connection-grid {
     }
 
     th.port {
-      font-weight: 100;
+      color: var(--low-contract-text);
+      font-weight: var(--port-weight);
       text-wrap: nowrap;
       text-align: left;
       writing-mode: vertical-lr;
@@ -112,19 +128,26 @@ table.connection-grid {
     }
 
     td {
-      font-size: 16px;
       border: none;
-      text-align: right;
-      vertical-align: bottom;
-      transform-origin: right;
-      transform: translate(25%, 15%) rotate(45deg);
+      text-align: center;
+
+      &:after {
+        content: '';
+        background: rgb(var(--background-rgb));
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 100%;
+        width: 100%;
+        height: 100%;
+      }
     }
   }
 
   tbody {
     tr:hover th.port,
     tr:hover td {
-      background-color: rgba(var(--table-hover-row-rgba));
+      background-color: var(--table-hover-color);
     }
 
     tr.first-port,
@@ -157,7 +180,12 @@ table.connection-grid {
     }
 
     th.port {
-      font-weight: 100;
+      color: var(--low-contract-text);
+      font-weight: var(--port-weight);
+    }
+
+    tr:hover th.port {
+      color: var(--foreground-rgb);
     }
   }
 }

@@ -14,7 +14,7 @@ import "./globals.css"
 
 import ContextWrapper from "./contextWrappers"
 import { Save, Upload, UploadFile } from "@mui/icons-material"
-import SaveFile from "./components/saveFile"
+import FileControls from "./components/fileControls"
 
 export const metadata: Metadata = {
   title: { default: "Next Studio Manager", template: "%s | Next Studio Manager" },
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   <Button component={ NextLink } href="/connections">Connections</Button>
                 </ButtonGroup>
                 <Box className="absolute top-4 right-4">
-                  <SaveFile />
+                  <FileControls />
                 </Box>
               </header>
               {children}

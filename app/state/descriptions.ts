@@ -1,3 +1,14 @@
+export type AlertBase = {
+    severity: 'success' | 'info' | 'warning' | 'error',
+    msg: string,
+    transient?: boolean,
+}
+
+export type Alert = AlertBase & {
+    id: string,
+}
+
+
 /**
  * The type `Device` represents a device with an id, name, and an array of ports.
  * @property {string} id - The `id` property in the `Device` type represents the unique identifier of

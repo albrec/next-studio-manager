@@ -30,7 +30,7 @@ export function useDevicesDispatch() {
  */
 export function DevicesProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [loaded, setLoaded] = useState(false)
-  const [devices, dispatch] = useReducer( devicesReducer, initialState )
+  const [devices, dispatch] = useReducer(devicesReducer, initialState)
 
   useEffect(() => {
     if(!loaded) {

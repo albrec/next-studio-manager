@@ -3,12 +3,17 @@ import { Save, UploadFile } from "@mui/icons-material"
 import { Button } from "@mui/material"
 import { useDevices, useDevicesDispatch } from "../state/deviceContext"
 import { CSSProperties, ChangeEvent, DetailedHTMLProps, InputHTMLAttributes, Ref, forwardRef, useRef } from "react"
-import { Device } from "../state/descriptions"
+import { Connection, Device } from "../state/descriptions"
+import { useConnections, useConnectionsDispatch } from "../state/connectionContext"
+import { useAlertsDispatch } from "../state/alertContext"
 
 export default function FileControls() {
     const devices = useDevices()
-    const dispatch = useDevicesDispatch()
+    const deviceDispatch = useDevicesDispatch()
+    const connections = useConnections()
+    const connectionsDispatch = useConnectionsDispatch()
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const alertsDispatch = useAlertsDispatch()
     
     return (
         <>
@@ -32,13 +37,23 @@ export default function FileControls() {
             const writableStream = await newHandle.createWritable()
             
             // write our file
-            await writableStream.write(JSON.stringify(devices))
+            await writableStream.write(JSON.stringify({
+                devices,
+                connections,
+            }))
             
             // close the file and write the contents to disk.
             await writableStream.close()
         } catch (err) {
             if(err instanceof Error) {
-                console.error(err.name, err.message)
+                console.error(err)
+                alertsDispatch?.({
+                    type: 'add',
+                    alert: {
+                        severity: 'error',
+                        msg: `Failed to save file.`,
+                    }
+                })
             }
         }
     }
@@ -49,16 +64,34 @@ export default function FileControls() {
             const reader = new FileReader()
             reader.onload = function(e) {
                 if(!!e.target && typeof e.target.result === 'string') {
-                    let devices: Device[]
+                    let data: { devices: Device[], connections: Connection[] }
                     try {
-                        devices = JSON.parse(e.target.result)
-                        dispatch?.({
+                        data = JSON.parse(e.target.result)
+                        deviceDispatch?.({
                             type: 'load',
-                            devices: devices,
+                            devices: data.devices,
                         })
-                        alert(`Loaded ${devices.length} devices.`)
+                        connectionsDispatch?.({
+                            type: 'load',
+                            connections: data.connections,
+                        })
+                        alertsDispatch?.({
+                            type: 'add',
+                            alert: {
+                                severity: 'success',
+                                msg: `Loaded ${data.devices.length} devices and ${data.connections.length} connections.`,
+                                transient: true,
+                            }
+                        })
                     } catch (err) {
-                        console.error('Failed to load file', err)
+                        console.error(err)
+                        alertsDispatch?.({
+                            type: 'add',
+                            alert: {
+                                severity: 'error',
+                                msg: `Failed to load file ${file.name}.`,
+                            }
+                        })
                     }
                 }
             }

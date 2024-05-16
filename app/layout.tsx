@@ -13,8 +13,8 @@ import theme from "./theme"
 import "./globals.css"
 
 import ContextWrapper from "./contextWrappers"
-import { Save, Upload, UploadFile } from "@mui/icons-material"
 import FileControls from "./components/fileControls"
+import Alerts from "./components/alerts"
 
 export const metadata: Metadata = {
   title: { default: "Next Studio Manager", template: "%s | Next Studio Manager" },
@@ -42,6 +42,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <Box className="absolute top-4 right-4">
                   <FileControls />
                 </Box>
+                <Alerts />
               </header>
               {children}
             </body>

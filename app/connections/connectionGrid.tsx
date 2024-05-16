@@ -1,16 +1,17 @@
-import { Checkbox } from "@mui/material"
-import { Port, PortDirectionality, PortIntersection, PortTypes } from "../state/descriptions"
+import { PortDirectionality, PortIntersection, PortTypes } from "../state/descriptions"
 import { useDevices } from "../state/deviceContext"
 import { Dispatch, SetStateAction, useState } from "react"
 import classNames from "classnames"
 import { getDeviceFromPort } from "../state/deviceSelectors"
-import { DeviceHub, Hub } from "@mui/icons-material"
+import { DeviceHub } from "@mui/icons-material"
 import { deriveConnectionId, isConnectionValid, useConnections, useConnectionsDispatch } from "../state/connectionContext"
+import { useAlertsDispatch } from "../state/alertContext"
 
 export function ConnectionGrid () {
     const devices = useDevices()
     const connections = useConnections()
     const dispatch = useConnectionsDispatch()
+    const alertsDispatch = useAlertsDispatch()
     const [hoveredConnection, setHoveredConnection] = useState<PortIntersection | null>(null)
 
     const connectionMap = connections?.map(c => c.id)
@@ -95,6 +96,16 @@ export function ConnectionGrid () {
                 })
             } else if(!isConnectionValid(portIntersection)) {
                 setError(true)
+                const outputDevice = devices && getDeviceFromPort({ devices, port: output })
+                const inputDevice = devices && getDeviceFromPort({ devices, port: input })
+                alertsDispatch?.({
+                    type: 'add',
+                    alert: {
+                        severity: 'warning',
+                        msg: `${outputDevice?.name} ${output.name} cannot be connected to ${inputDevice?.name} ${input.name}`,
+                        transient: true,
+                    }
+                })
                 setTimeout(() => setError(false), 1000)
                 return false
             } else {

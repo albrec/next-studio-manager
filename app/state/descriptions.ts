@@ -133,3 +133,8 @@ export type Connection = {
     inputPort: Port,
     outputPort: Port,
 }
+
+export type PortIntersection = {
+    input: Port,
+    output: Port,
+}

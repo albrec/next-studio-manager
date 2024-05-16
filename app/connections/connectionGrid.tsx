@@ -1,16 +1,11 @@
 import { Checkbox } from "@mui/material"
-import { Port, PortDirectionality, PortTypes } from "../state/descriptions"
+import { Port, PortDirectionality, PortIntersection, PortTypes } from "../state/descriptions"
 import { useDevices } from "../state/deviceContext"
 import { Dispatch, SetStateAction, useState } from "react"
 import classNames from "classnames"
 import { getDeviceFromPort } from "../state/deviceSelectors"
 import { DeviceHub, Hub } from "@mui/icons-material"
-import { deriveConnectionId, useConnections, useConnectionsDispatch } from "../state/connectionContext"
-
-type PortIntersection = {
-    input: Port,
-    output: Port,
-}
+import { deriveConnectionId, isConnectionValid, useConnections, useConnectionsDispatch } from "../state/connectionContext"
 
 export function ConnectionGrid () {
     const devices = useDevices()
@@ -31,7 +26,7 @@ export function ConnectionGrid () {
         const decoratedDevices = devices?.map(d => ({ 
             ...d,
             inputPorts: d.ports.filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)),
-            outputPorts: d.ports.filter(p => PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)),
+            outputPorts: d.ports.filter(p => p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)),
         }))
 
         const inputDevices = decoratedDevices?.filter(d => d.inputPorts.length > 0)
@@ -88,6 +83,7 @@ export function ConnectionGrid () {
     function ConnectionNode({ portIntersection }: { portIntersection: PortIntersection }) {
         const { input, output } = portIntersection
         const connectionId = deriveConnectionId({ input, output })
+        const [error, setError] = useState(false)
 
         const isConnected = connectionMap?.includes(connectionId)
 
@@ -97,7 +93,12 @@ export function ConnectionGrid () {
                     type: 'delete',
                     id: connectionId,
                 })
+            } else if(!isConnectionValid(portIntersection)) {
+                setError(true)
+                setTimeout(() => setError(false), 1000)
+                return false
             } else {
+                
                 dispatch?.({
                     type: 'add',
                     connection: {
@@ -106,11 +107,12 @@ export function ConnectionGrid () {
                     }
                 })
             }
+            
         }
 
         return (
             <td
-                className={ classNames(`port-col-${input.id}`, `port-type-${input.type}`, { connected: isConnected }) }
+                className={ classNames(`port-col-${input.id}`, `port-type-${input.type}`, { connected: isConnected, error }) }
                 onMouseEnter= { e => setHoveredConnection(portIntersection) }
                 onMouseLeave={ e => setHoveredConnection(null) }
                 onClick={ toggleConnection }

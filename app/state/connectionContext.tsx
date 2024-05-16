@@ -1,7 +1,7 @@
 'use client'
 
 import { Dispatch, createContext, useContext, useEffect, useReducer, useState } from 'react'
-import type { Port, Connection } from './descriptions'
+import { type Port, type Connection, PortTypes, PortDirectionality, PortIntersection } from './descriptions'
 
 const ConnectionsContext = createContext<Connection[] | null>(null)
 const ConnectionsDispatchContext = createContext<Dispatch<ConnectionActions> | null>(null)
@@ -83,4 +83,38 @@ function connectionReducer(connections: Connection[], action: ConnectionActions)
 
 export function deriveConnectionId({ input, output }: { input: Port, output: Port }): Connection['id'] {
   return output.id + input.id
+}
+
+
+const connectionValidators = {
+  [PortTypes.AUDIO]: (input: Port, output: Port) => {
+
+    
+    console.log(input.type === PortTypes.AUDIO,
+      output.type === PortTypes.AUDIO,
+      input.io === PortDirectionality.INPUT,
+      output.io === PortDirectionality.OUTPUT)
+
+
+    return  input.type === PortTypes.AUDIO &&
+            output.type === PortTypes.AUDIO &&
+            input.io === PortDirectionality.INPUT && 
+            output.io === PortDirectionality.OUTPUT
+  },
+  [PortTypes.MIDI]: (input: Port, output: Port) => {
+    return  input.type === PortTypes.MIDI &&
+            output.type === PortTypes.MIDI &&
+            input.io === PortDirectionality.INPUT && 
+            output.io === PortDirectionality.OUTPUT
+  },
+  [PortTypes.USB]: (input: Port, output: Port) => {
+    return  input.type === PortTypes.USB &&
+            output.type === PortTypes.USB &&
+            input.host === true && 
+            output.host === false
+  },
+}
+
+export function isConnectionValid({ input, output }: PortIntersection) {
+  return connectionValidators[output.type](input, output)
 }

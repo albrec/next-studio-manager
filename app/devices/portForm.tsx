@@ -1,12 +1,12 @@
 import { v4 as uuidv4 } from 'uuid'
 import { FormEvent, useState } from "react"
 import { useDevicesDispatch } from "../state/deviceContext"
-import { AudioPort, AudioPortSubTypes, Device, MidiPort, Port, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions'
+import { AudioPort, AudioPortSubTypes, Device, MidiPort, NewPort, Port, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions'
 import classNames from 'classnames'
 import { Box, Button, Checkbox, Dialog, DialogTitle, FormControl, FormControlLabel, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { Close } from '@mui/icons-material'
 
-export default function PortForm ({ port, device, open, onClose }: { port?: Port | null, device: Device, open: boolean, onClose(): void }) {
+export default function PortForm ({ port, device, open, onClose }: { port?: Port | NewPort | null, device: Device, open: boolean, onClose(): void }) {
     const [name, setName] = useState(port?.name || '')
     const [type, setType] = useState(port?.type || '')
     const [subType, setSubType] = useState(port?.type === PortTypes.AUDIO && port?.subType ? port.subType : '')
@@ -15,6 +15,8 @@ export default function PortForm ({ port, device, open, onClose }: { port?: Port
     const [host, setHost] = useState(port?.type === PortTypes.USB && port?.host ? port.host : false)
     const [submitted, setSubmitted] = useState(false)
     const dispatch = useDevicesDispatch()
+
+    const isNewPort = !port?.id
 
     function closeModal() {
         onClose()
@@ -28,7 +30,7 @@ export default function PortForm ({ port, device, open, onClose }: { port?: Port
                     noValidate
                 >
                     <Box className="flex flex-col gap-3">
-                        <DialogTitle className="pl-0" variant="h3">{ port ? 'Update' : 'Add' } Port</DialogTitle>
+                        <DialogTitle className="pl-0" variant="h3">{ isNewPort ? 'Add' : 'Update' } Port</DialogTitle>
                         <TypeSelect />
 
                         { (type === PortTypes.USB ) ?
@@ -52,7 +54,7 @@ export default function PortForm ({ port, device, open, onClose }: { port?: Port
                             error={ submitted && !(name || deriveName()) }
                         />
 
-                        <Button variant="contained" onClick={ submitForm }>{ port ? 'Update' : 'Add' }</Button>
+                        <Button variant="contained" onClick={ submitForm }>{ isNewPort ? 'Add' : 'Update' }</Button>
                     </Box>
                 </form>
             </Box>
@@ -253,7 +255,7 @@ export default function PortForm ({ port, device, open, onClose }: { port?: Port
         }
         if (portIsValid(p)) {
             dispatch?.({
-                type: port ? 'updatePort' : 'addPort',
+                type: isNewPort ? 'addPort' : 'updatePort',
                 id: device.id,
                 port: p,
             })

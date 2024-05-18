@@ -48,4 +48,4 @@ function alertReducer(alerts: Alert[], action: AlertActions): Alert[] {
 
 type AddAlert = { type: 'add', alert: AlertBase }
 type DeleteAlert = { type: 'delete', id: string }
-type AlertActions = AddAlert | DeleteAlert
+export type AlertActions = AddAlert | DeleteAlert

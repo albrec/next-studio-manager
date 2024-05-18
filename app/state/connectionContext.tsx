@@ -2,6 +2,7 @@
 
 import { Dispatch, createContext, useContext, useEffect, useReducer, useState } from 'react'
 import { type Port, type Connection, PortTypes, PortDirectionality, PortIntersection } from './descriptions'
+import { getPortById } from './deviceSelectors'
 
 const ConnectionsContext = createContext<Connection[] | null>(null)
 const ConnectionsDispatchContext = createContext<Dispatch<ConnectionActions> | null>(null)
@@ -55,11 +56,12 @@ function getPersistedConnections(initData = initialState) {
 }
 
 type ConnectionPorts = { inputPort: Port, outputPort: Port }
+export type ConnectionAddress = { input: string, output: string }
 
 type LoadConnections = { type: 'load', connections: Connection[] }
 type AddConnection = { type: 'add', connection: ConnectionPorts }
 type DeleteConnection = { type: 'delete', id: Connection['id'] }
-type ConnectionActions = LoadConnections | AddConnection | DeleteConnection
+export type ConnectionActions = LoadConnections | AddConnection | DeleteConnection
 
 
 
@@ -81,8 +83,10 @@ function connectionReducer(connections: Connection[], action: ConnectionActions)
   }
 }
 
-export function deriveConnectionId({ input, output }: { input: Port, output: Port }): Connection['id'] {
-  return output.id + input.id
+export function deriveConnectionId({ input, output }: { input: Port | string, output: Port | string }): Connection['id'] {
+  const inputId = typeof input === 'string' ? input : input.id
+  const outputId = typeof output === 'string' ? output : output.id
+  return outputId + inputId
 }
 
 
@@ -90,10 +94,9 @@ const connectionValidators = {
   [PortTypes.AUDIO]: (input: Port, output: Port) => {
 
     
-    console.log(input.type === PortTypes.AUDIO,
       output.type === PortTypes.AUDIO,
       input.io === PortDirectionality.INPUT,
-      output.io === PortDirectionality.OUTPUT)
+      output.io === PortDirectionality.OUTPUT
 
 
     return  input.type === PortTypes.AUDIO &&

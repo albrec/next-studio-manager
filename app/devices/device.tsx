@@ -1,23 +1,23 @@
 import { useState } from "react"
-import { Device as DeviceType, Port, PortTypes } from "../state/descriptions"
+import { Device as DeviceType, NewPort, Port, PortTypes } from "../state/descriptions"
 import { useDevicesDispatch } from "../state/deviceContext"
 import PortForm from "./portForm"
 import classNames from "classnames"
 import DeviceForm from "./deviceForm"
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, ButtonGroup, Card, CardActions, CardContent, CardHeader, Checkbox, Divider, IconButton, Paper, Typography } from "@mui/material"
-import { Add, ArrowDropDown, Delete, Edit, Piano, Usb, VolumeUp } from "@mui/icons-material"
+import { Add, ArrowDropDown, Delete, Edit, Piano, Usb, VolumeUp, ContentCopy } from "@mui/icons-material"
 
 export default function Device ({ device }: { device: DeviceType }) {
     const dispatch = useDevicesDispatch()
     const [deviceModalOpen, setDeviceModalOpen] = useState(false)
     const [portModalOpen, setPortModalOpen] = useState(false)
-    const [editPort, setEditPort] = useState<Port | null>(null)
+    const [editPort, setEditPort] = useState<Port | NewPort | null>(null)
 
     const hasAudio = device.ports.some(p => p.type === PortTypes.AUDIO)
     const hasMidi = device.ports.some(p => p.type === PortTypes.MIDI)
     const hasUsb = device.ports.some(p => p.type === PortTypes.USB)
 
-    function openPortModal(port?: Port) {
+    function openPortModal(port?: Port | NewPort) {
         setEditPort(port ? port : null)
         setPortModalOpen(true)
     }
@@ -28,7 +28,35 @@ export default function Device ({ device }: { device: DeviceType }) {
     }
 
     function sortPorts(ports: Port[]) {
-        return ports.sort((a,b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name))
+        return ports.sort((a,b) => {
+            const matcher = /(.+?)(\d+)$/
+            const aSegments = a.name.match(matcher)
+            const aName = aSegments?.[1] || ''
+            const aNumber = parseInt(aSegments?.[2] || '')
+            const bSegments = b.name.match(matcher)
+            const bName = bSegments?.[1] || ''
+            const bNumber = parseInt(bSegments?.[2] || '')
+            return a.type.localeCompare(b.type) || aName.localeCompare(bName) || aNumber - bNumber
+        })
+    }
+
+    function duplicatePort(port: Port) {
+        const newPort: NewPort = { ...port }
+        delete newPort.id
+
+        newPort.name = newPort.name.replace(/([L|R]|\d+)$/, (m) => {
+            if(m === 'L') {
+                return 'R'
+            } else if(m === 'R') {
+                return 'L'
+            } else if(parseInt(m)) {
+                return (parseInt(m) + 1).toString()
+            } else {
+                return m
+            }
+        })
+
+        return newPort
     }
 
     return (
@@ -78,6 +106,7 @@ export default function Device ({ device }: { device: DeviceType }) {
                                     <CardActions>
                                         <IconButton onClick={ e => { openPortModal(port) } }><Edit /></IconButton>
                                         <IconButton onClick={ e => dispatch?.({ type: 'deletePort', id: device.id, portId: port.id }) }><Delete /></IconButton>
+                                        <IconButton onClick={ e => { openPortModal(duplicatePort(port)) } }><ContentCopy /></IconButton>
                                     </CardActions>
                                 </Card>
                             ))}

@@ -82,32 +82,47 @@ different types of ports. In this case, the `PortBase` interface includes the `i
 properties, which are fundamental properties that all types of ports must have. By creating this
 base interface, other port interfaces (`AudioPort`, `MidiPort`, `UsbPort`) can extend `PortBase` and
 inherit these common properties, ensuring consistency and reusability in the codebase. */
+
+
 interface PortBase {
-    id: string,
     name: string,
+    id?: string,
 }
 
-export interface AudioPort extends PortBase {
+export interface NewAudioPort extends PortBase {
     type: PortTypes.AUDIO,
     subType: AudioPortSubTypes,
     connector: AudioConnectors,
     io: PortDirectionality.INPUT | PortDirectionality.OUTPUT,
 }
 
-export interface MidiPort extends PortBase {
+export interface NewMidiPort extends PortBase {
     type: PortTypes.MIDI,
     connector: MidiConnectors,
     io: PortDirectionality.INPUT | PortDirectionality.OUTPUT,
 }
 
-export interface UsbPort extends PortBase {
+export interface NewUsbPort extends PortBase {
     type: PortTypes.USB,
     host: boolean,
     connector: UsbConnectors,
     io: PortDirectionality.BIDIRECTIONAL,
 }
 
+export interface AudioPort extends NewAudioPort {
+    id: string
+}
+
+export interface MidiPort extends NewMidiPort {
+    id: string
+}
+
+export interface UsbPort extends NewUsbPort {
+    id: string
+}
+
 export type Port = AudioPort | MidiPort | UsbPort
+export type NewPort = NewAudioPort | NewMidiPort | NewUsbPort
 
 
 

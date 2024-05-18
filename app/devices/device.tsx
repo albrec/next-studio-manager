@@ -4,7 +4,7 @@ import { useDevicesDispatch } from "../state/deviceContext"
 import PortForm from "./portForm"
 import classNames from "classnames"
 import DeviceForm from "./deviceForm"
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, ButtonGroup, Card, CardActions, CardContent, CardHeader, Checkbox, Divider, IconButton, Paper, Typography } from "@mui/material"
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, ButtonGroup, Card, CardActions, CardContent, CardHeader, Checkbox, Divider, IconButton, Paper, Stack, Typography } from "@mui/material"
 import { Add, ArrowDropDown, Delete, Edit, Piano, Usb, VolumeUp, ContentCopy } from "@mui/icons-material"
 
 export default function Device ({ device }: { device: DeviceType }) {
@@ -63,9 +63,20 @@ export default function Device ({ device }: { device: DeviceType }) {
         <section>
             <Paper className="p-8 mb-8" elevation={ 3 }>
             
-                <Box className="flex items-center mb-4">
-                    <Typography className="mr-4" variant="h2">{ device.name } </Typography>
-                    <ButtonGroup>
+                <Box className="flex justify-between items-center w-full mb-4">
+                    <Box className="flex items-baseline gap-4">
+                        <Typography variant="h2">{ device.name }</Typography>
+                        { Array.isArray(device.midiChannels) && device.midiChannels.length > 0 && (
+                                <>
+                                    <Divider orientation="vertical" flexItem /> 
+                                    <strong>MIDI Channels: </strong>
+                                    <Stack direction="row" spacing={ 1 } divider={ <Divider orientation="vertical" flexItem />}>
+                                    { device.midiChannels.map(c => <Typography key={ c }>{ c }</Typography>) }
+                                    </Stack>
+                                </>
+                            )}
+                    </Box>
+                    <ButtonGroup className="justify-self-end">
                         <Button onClick={ e => { setDeviceModalOpen(true) } }><Edit /></Button>
                         <Button onClick={e => dispatch?.({ type: 'delete', id: device.id })}><Delete /></Button>
                         <Button onClick={ e => openPortModal() }>Add Port <Add /></Button>
@@ -91,9 +102,14 @@ export default function Device ({ device }: { device: DeviceType }) {
                     <AccordionDetails>
                         <Box className="flex flex-wrap gap-4">
                             { device.ports && sortPorts(device.ports).map(port => (
-                                <Card className="bg-stone-200 p-4" key={ `port_${port.id}` }>
+                                <Card className="flex flex-col justify-between bg-stone-200" key={ `port_${port.id}` }>
                                     <CardContent>
-                                        <Typography gutterBottom variant="h3">{ port.name || "Unnamed Port" }</Typography>
+                                        <Typography className="flex items-center" gutterBottom variant="h3">
+                                            { port.type === PortTypes.AUDIO && <VolumeUp />}
+                                            { port.type === PortTypes.MIDI && <Piano />}
+                                            { port.type === PortTypes.USB && <Usb />}
+                                            { port.name || "Unnamed Port" }
+                                        </Typography>
                                         <Typography noWrap>Type: { port.type }</Typography>
                                         { port.type === PortTypes.AUDIO && <Typography noWrap>Sub Type: { port.subType }</Typography> }
                                         <Typography noWrap>Connector: { port.connector }</Typography>
@@ -104,9 +120,9 @@ export default function Device ({ device }: { device: DeviceType }) {
                                         }
                                     </CardContent>
                                     <CardActions>
-                                        <IconButton onClick={ e => { openPortModal(port) } }><Edit /></IconButton>
-                                        <IconButton onClick={ e => dispatch?.({ type: 'deletePort', id: device.id, portId: port.id }) }><Delete /></IconButton>
-                                        <IconButton onClick={ e => { openPortModal(duplicatePort(port)) } }><ContentCopy /></IconButton>
+                                        <IconButton onClick={ e => { openPortModal(port) } }><Edit fontSize="small" /></IconButton>
+                                        <IconButton onClick={ e => dispatch?.({ type: 'deletePort', id: device.id, portId: port.id }) }><Delete fontSize="small" /></IconButton>
+                                        <IconButton onClick={ e => { openPortModal(duplicatePort(port)) } }><ContentCopy fontSize="small" /></IconButton>
                                     </CardActions>
                                 </Card>
                             ))}

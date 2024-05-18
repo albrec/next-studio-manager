@@ -5,7 +5,7 @@ import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 import classNames from "classnames"
-import { Button, ButtonGroup, CssBaseline, Typography, ThemeProvider, Box } from "@mui/material"
+import { ButtonGroup, CssBaseline, Typography, ThemeProvider, Box } from "@mui/material"
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 
 
@@ -15,17 +15,23 @@ import "./globals.css"
 import ContextWrapper from "./contextWrappers"
 import FileControls from "./components/fileControls"
 import Alerts from "./components/alerts"
+import { usePathname } from "next/navigation"
+import NavButton from "./components/navLink"
+import Nav from "./components/nav"
 
 export const metadata: Metadata = {
   title: { default: "Next Studio Manager", template: "%s | Next Studio Manager" },
-  description: "Defining, connecting and managing you studio",
+  description: "Helping you define, connect and manage your studio.",
+  keywords: ['Studio', 'Studio Management'],
+  authors: [{ name: "David Souza" }],
+  creator: "David Souza",
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <head>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        {/* <meta name="viewport" content="initial-scale=1, width=device-width" /> */}
       </head>
       <ContextWrapper>
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
@@ -33,12 +39,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <CssBaseline />
             <body className={ classNames('px-12') }>
               <header className="flex flex-col items-center mb-12 relative">
-                <Typography className="font-thin" variant="h3">Next Studio Manager</Typography>
-                <ButtonGroup className="flex justify-center">
-                  <Button component={ NextLink } href="/">Home</Button>
-                  <Button component={ NextLink } href="/devices">Devices</Button>
-                  <Button component={ NextLink } href="/connections">Connections</Button>
-                </ButtonGroup>
+                <Typography className="my-4 font-thin" variant="h3">Next Studio Manager</Typography>
+                <Nav />
                 <Box className="absolute top-4 right-4">
                   <FileControls />
                 </Box>
@@ -52,5 +54,3 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     </html>
   )
 }
-
-

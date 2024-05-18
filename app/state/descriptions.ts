@@ -8,7 +8,6 @@ export type Alert = AlertBase & {
     id: string,
 }
 
-
 /**
  * The type `Device` represents a device with an id, name, and an array of ports.
  * @property {string} id - The `id` property in the `Device` type represents the unique identifier of
@@ -23,7 +22,10 @@ export type Device = {
     id: string,
     name: string,
     ports: Port[],
+    midiChannels?: number[]
 }
+
+export const MidiChannels: number[] = [...Array(16).keys()].map(i => i + 1)
 
 /* The `export enum PortTypes` block is defining an enumeration in TypeScript. In this specific case,
 it is defining a set of constants representing different types of ports that can be present in a

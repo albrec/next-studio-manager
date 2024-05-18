@@ -5,6 +5,8 @@
 
 :root {
   --foreground-rgb: 0, 0, 0;
+  --foreground: rgb(var(--foreground-rgb));
+  --foreground-light: rgb(150, 150, 150);
   --background-rgb: 255, 255, 255;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
@@ -23,6 +25,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
+    --foreground-light: rgb(150, 150, 150);
     --background-rgb: 0, 0, 0;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;

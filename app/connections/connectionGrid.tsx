@@ -5,19 +5,27 @@ import classNames from "classnames"
 import { getDeviceFromPort, getPortById } from "../state/deviceSelectors"
 import { DeviceHub } from "@mui/icons-material"
 import { ConnectionAddress, deriveConnectionId, isConnectionCompatible, useConnections, useConnectionsDispatch } from "../state/connectionContext"
+import { Button, ButtonGroup } from "@mui/material"
 
 
 export function ConnectionGrid () {
     const devices = useDevices()
     const connections = useConnections()
     const [hoveredConnection, setHoveredConnection] = useState<ConnectionAddress | null>(null)
+    const [portType, setPortType] = useState<PortTypes | null>(null)
     
     const connectionMap = useMemo(() => connections?.map(c => c.id), [connections])
     
     return (
         <>
             <HighlightStyles />
-            <GridTable connectionMap={ connectionMap } setHoveredConnection={ setHoveredConnection } />
+            <ButtonGroup>
+                <Button onClick={ () => setPortType(null) }>All</Button>
+                <Button onClick={ () => setPortType(PortTypes.AUDIO) }>Audio</Button>
+                <Button onClick={ () => setPortType(PortTypes.MIDI) }>MIDI</Button>
+                <Button onClick={ () => setPortType(PortTypes.USB) }>USB</Button>
+            </ButtonGroup>
+            <GridTable portType={ portType } connectionMap={ connectionMap } setHoveredConnection={ setHoveredConnection } />
         </>
     )
     
@@ -79,14 +87,18 @@ export function ConnectionGrid () {
 
 
 
-const GridTable = memo(function GridTable({ connectionMap, setHoveredConnection }: { connectionMap?: string[], setHoveredConnection: Dispatch<SetStateAction<ConnectionAddress | null>> }) {
+const GridTable = memo(function GridTable({ portType, connectionMap, setHoveredConnection }: { portType: PortTypes | null, connectionMap?: string[], setHoveredConnection: Dispatch<SetStateAction<ConnectionAddress | null>> }) {
     const devices = useDevices()
     const connectionsDispatch = useConnectionsDispatch()
 
     const decoratedDevices = devices?.map(d => ({ 
         ...d,
-        inputPorts: d.ports.filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)),
-        outputPorts: d.ports.filter(p => p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)),
+        inputPorts: d.ports
+                        .filter(p => portType ? p.type === portType : true)
+                        .filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)),
+        outputPorts: d.ports
+                        .filter(p => portType ? p.type === portType : true)
+                        .filter(p => p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)),
     }))
     
     const inputDevices = decoratedDevices?.filter(d => d.inputPorts.length > 0)

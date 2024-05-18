@@ -202,11 +202,11 @@ table.connection-grid {
 
     th.device {
       text-align: center;
-      writing-mode: vertical-lr;
-      transform: rotate(180deg);
       position: sticky;
       left: 0;
-      height: 1.2em;
+      max-width: 12ch;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     th.port {

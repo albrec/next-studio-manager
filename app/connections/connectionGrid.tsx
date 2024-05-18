@@ -12,7 +12,7 @@ export function ConnectionGrid () {
     const devices = useDevices()
     const connections = useConnections()
     const [hoveredConnection, setHoveredConnection] = useState<ConnectionAddress | null>(null)
-    const [portType, setPortType] = useState<PortTypes | null>(null)
+    const [portTypes, setPortTypes] = useState<PortTypes[]>([PortTypes.AUDIO, PortTypes.MIDI, PortTypes.USB])
     
     const connectionMap = useMemo(() => connections?.map(c => c.id), [connections])
     
@@ -20,14 +20,22 @@ export function ConnectionGrid () {
         <>
             <HighlightStyles />
             <ButtonGroup>
-                <Button onClick={ () => setPortType(null) }>All</Button>
-                <Button onClick={ () => setPortType(PortTypes.AUDIO) }>Audio</Button>
-                <Button onClick={ () => setPortType(PortTypes.MIDI) }>MIDI</Button>
-                <Button onClick={ () => setPortType(PortTypes.USB) }>USB</Button>
+                <Button variant={ portTypes.includes(PortTypes.AUDIO) ? 'contained' : 'outlined' } onClick={ () => toggleFilter(PortTypes.AUDIO) }>Audio</Button>
+                <Button variant={ portTypes.includes(PortTypes.MIDI) ? 'contained' : 'outlined' } onClick={ () => toggleFilter(PortTypes.MIDI) }>MIDI</Button>
+                <Button variant={ portTypes.includes(PortTypes.USB) ? 'contained' : 'outlined' } onClick={ () => toggleFilter(PortTypes.USB) }>USB</Button>
             </ButtonGroup>
-            <GridTable portType={ portType } connectionMap={ connectionMap } setHoveredConnection={ setHoveredConnection } />
+            <GridTable portTypes={ portTypes } connectionMap={ connectionMap } setHoveredConnection={ setHoveredConnection } />
         </>
     )
+
+
+
+    function toggleFilter(portType: PortTypes) {
+        const newPortType = portTypes.includes(portType) ? portTypes.filter(p => p !== portType) : [...portTypes, portType]
+        if(newPortType.length > 0) {
+            setPortTypes(newPortType)
+        }
+    }
     
     
     
@@ -87,17 +95,17 @@ export function ConnectionGrid () {
 
 
 
-const GridTable = memo(function GridTable({ portType, connectionMap, setHoveredConnection }: { portType: PortTypes | null, connectionMap?: string[], setHoveredConnection: Dispatch<SetStateAction<ConnectionAddress | null>> }) {
+const GridTable = memo(function GridTable({ portTypes, connectionMap, setHoveredConnection }: { portTypes: PortTypes[], connectionMap?: string[], setHoveredConnection: Dispatch<SetStateAction<ConnectionAddress | null>> }) {
     const devices = useDevices()
     const connectionsDispatch = useConnectionsDispatch()
 
     const decoratedDevices = devices?.map(d => ({ 
         ...d,
         inputPorts: d.ports
-                        .filter(p => portType ? p.type === portType : true)
+                        .filter(p => portTypes.includes(p.type))
                         .filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)),
         outputPorts: d.ports
-                        .filter(p => portType ? p.type === portType : true)
+                        .filter(p => portTypes.includes(p.type))
                         .filter(p => p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)),
     }))
     

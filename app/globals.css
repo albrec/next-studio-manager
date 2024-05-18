@@ -145,10 +145,7 @@ table.connection-grid {
         display: inline-block;
         transform: rotate(20deg) skew(20deg);
         padding: .75em 0;
-        height: 12ch;
         width: 1.2em;
-        overflow:hidden;
-        text-overflow: ellipsis;
       }
     }
 
@@ -213,7 +210,7 @@ table.connection-grid {
       color: var(--low-contract-text);
       font-weight: var(--port-weight);
       position: sticky;
-      left: 2em;
+      left: 12ch;
       height: 1.2em;
     }
 

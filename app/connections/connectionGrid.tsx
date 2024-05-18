@@ -8,34 +8,71 @@ import { ConnectionActions, ConnectionAddress, deriveConnectionId, isConnectionV
 import { AlertActions, useAlertsDispatch } from "../state/alertContext"
 
 
-const ConnectionNode = memo(function ConnectionNode({ 
-    inputId,
-    inputType,
-    outputId,
-    outputType,
-    isConnected,
-    toggleConnection,
-    setHoveredConnection,
-}: { 
-    inputId: string,
-    inputType: PortTypes,
-    outputId: string,
-    outputType: PortTypes,
-    isConnected: boolean,
-    toggleConnection: Function,
-    setHoveredConnection: Dispatch<SetStateAction<ConnectionAddress | null>>,
-}) {
-    console.count('ConnectionNode')
+export function ConnectionGrid () {
+    const devices = useDevices()
+    const connections = useConnections()
+    const connectionsDispatch = useConnectionsDispatch()
+    const [hoveredConnection, setHoveredConnection] = useState<ConnectionAddress | null>(null)
+    
+    const connectionMap = useMemo(() => connections?.map(c => c.id), [connections])
+    
     return (
-        <td
-            id={ `port-intersection-${outputId}-${inputId}` }
-            className={ classNames(`port-type-${inputType}`, `input-port-id-${inputId}`, `output-port-id-${outputId}`, { connected: isConnected }) }
-            onClick={ () => toggleConnection(inputId, outputId, isConnected) }
-            onMouseEnter={ () => setHoveredConnection({ input: inputId, output: outputId }) }
-            onMouseLeave={ () => setHoveredConnection(null) }
-        />
+        <>
+            <HighlightStyles />
+            <GridTable connectionMap={ connectionMap } setHoveredConnection={ setHoveredConnection } />
+        </>
     )
-})
+    
+    
+    
+    function HighlightStyles() {
+        const tableSelector = 'table.connection-grid'
+        
+        if(!hoveredConnection || !devices) return null
+        
+        const input = getPortById(devices, hoveredConnection.input)
+        const output = getPortById(devices, hoveredConnection.output)
+        const inputDevice = getDeviceFromPort({ devices, port: hoveredConnection.input })
+        const outputDevice = getDeviceFromPort({ devices, port: hoveredConnection.output })
+
+        if(!(input && output)) return null
+        
+        console.count('HighlightStyles')
+        
+        return (
+            <style>
+            { 
+                `
+                ${tableSelector} tbody tr:hover td.port-type-${output.type} {
+                    background-color: var(--table-compatible-color-light);
+                }
+                
+                ${tableSelector} tbody tr:hover td:not(.port-type-${output.type}) {
+                    background-color: var(--table-incompatible-color-light);
+                }
+                
+                ${tableSelector} td.input-port-id-${input.id} {
+                    background-color: var(--table-hover-color);
+                }
+                
+                ${tableSelector} td#port-intersection-${output.id}-${input.id} {
+                    background-color: var(${input.type === output.type ? '--table-compatible-color' : '--table-incompatible-color'}) !important;
+                }
+                
+                ${tableSelector} #input_port_${input.id},
+                ${tableSelector} #input_device_${inputDevice?.id || 'unknown_devices'},
+                ${tableSelector} #output_device_${outputDevice?.id || 'unknown_devices'} {
+                    background-color: var(--table-hover-color) !important;
+                    color: var(--foreground-rgb);
+                }
+                `
+            }
+            </style>
+        )
+    }
+}
+
+
 
 const GridTable = memo(function GridTable({ connectionMap, setHoveredConnection }: { connectionMap?: string[], setHoveredConnection: Dispatch<SetStateAction<ConnectionAddress | null>> }) {
     const devices = useDevices()
@@ -140,66 +177,33 @@ const GridTable = memo(function GridTable({ connectionMap, setHoveredConnection 
     )
 })
 
-export function ConnectionGrid () {
-    const devices = useDevices()
-    const connections = useConnections()
-    const connectionsDispatch = useConnectionsDispatch()
-    const [hoveredConnection, setHoveredConnection] = useState<ConnectionAddress | null>(null)
-    
-    const connectionMap = useMemo(() => connections?.map(c => c.id), [connections])
-    
-    return (
-        <>
-            <HighlightStyles />
-            <GridTable connectionMap={ connectionMap } setHoveredConnection={ setHoveredConnection } />
-        </>
-    )
-    
-    
-    
-    function HighlightStyles() {
-        const tableSelector = 'table.connection-grid'
-        
-        if(!hoveredConnection || !devices) return null
-        
-        const input = getPortById(devices, hoveredConnection.input)
-        const output = getPortById(devices, hoveredConnection.output)
-        const inputDevice = getDeviceFromPort({ devices, port: hoveredConnection.input })
-        const outputDevice = getDeviceFromPort({ devices, port: hoveredConnection.output })
 
-        if(!(input && output)) return null
-        
-        console.count('HighlightStyles')
-        
-        return (
-            <style>
-            { 
-                `
-                ${tableSelector} tbody tr:hover td.port-type-${output.type} {
-                    background-color: var(--table-compatible-color-light);
-                }
-                
-                ${tableSelector} tbody tr:hover td:not(.port-type-${output.type}) {
-                    background-color: var(--table-incompatible-color-light);
-                }
-                
-                ${tableSelector} td.input-port-id-${input.id} {
-                    background-color: var(--table-hover-color);
-                }
-                
-                ${tableSelector} td#port-intersection-${output.id}-${input.id} {
-                    background-color: var(${input.type === output.type ? '--table-compatible-color' : '--table-incompatible-color'}) !important;
-                }
-                
-                ${tableSelector} #input_port_${input.id},
-                ${tableSelector} #input_device_${inputDevice?.id || 'unknown_devices'},
-                ${tableSelector} #output_device_${outputDevice?.id || 'unknown_devices'} {
-                    background-color: var(--table-hover-color) !important;
-                    color: var(--foreground-rgb);
-                }
-                `
-            }
-            </style>
-        )
-    }
-}
+
+const ConnectionNode = memo(function ConnectionNode({ 
+    inputId,
+    inputType,
+    outputId,
+    outputType,
+    isConnected,
+    toggleConnection,
+    setHoveredConnection,
+}: { 
+    inputId: string,
+    inputType: PortTypes,
+    outputId: string,
+    outputType: PortTypes,
+    isConnected: boolean,
+    toggleConnection: Function,
+    setHoveredConnection: Dispatch<SetStateAction<ConnectionAddress | null>>,
+}) {
+    console.count('ConnectionNode')
+    return (
+        <td
+            id={ `port-intersection-${outputId}-${inputId}` }
+            className={ classNames(`port-type-${inputType}`, `input-port-id-${inputId}`, `output-port-id-${outputId}`, { connected: isConnected }) }
+            onClick={ () => toggleConnection(inputId, outputId, isConnected) }
+            onMouseEnter={ () => setHoveredConnection({ input: inputId, output: outputId }) }
+            onMouseLeave={ () => setHoveredConnection(null) }
+        />
+    )
+})

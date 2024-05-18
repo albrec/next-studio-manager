@@ -15,7 +15,7 @@
   --table-compatible-color-light: rgb(from var(--table-compatible-color) r g b / 0.2);
   --table-incompatible-color: rgb(255, 40, 40);
   --table-incompatible-color-light: rgb(from var(--table-incompatible-color) r g b / 0.2);
-  --table-disabled-color: rgb(80, 80, 80);
+  --table-disabled-color: rgb(180, 180, 180);
   --port-weight: 400;
   --low-contract-text: rgb(128, 127, 127);
 }
@@ -27,8 +27,9 @@
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
     --zebra-rgba: 255, 255, 255, 0.15;
+    --table-border-rgb: 135, 135, 135;
     --table-hover-color: rgb(65, 68, 91);
-    --table-disabled-color: rgb(180, 180, 180);
+    --table-disabled-color: rgb(120, 120, 120);
   }
 }
 
@@ -53,6 +54,10 @@ table.connection-grid {
     background-color: rgba(var(--zebra-rgba));
   }
 
+  th {
+    white-space: nowrap;
+  }
+  
   td {
     border: 1px rgb(var(--table-border-rgb)) solid;
   }

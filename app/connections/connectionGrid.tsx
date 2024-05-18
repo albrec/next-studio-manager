@@ -1,17 +1,15 @@
-import { PortDirectionality, PortIntersection, PortTypes, Connection, Device } from "../state/descriptions"
+import { PortDirectionality, PortTypes } from "../state/descriptions"
 import { useDevices } from "../state/deviceContext"
 import { Dispatch, SetStateAction, memo, useCallback, useMemo, useState } from "react"
 import classNames from "classnames"
 import { getDeviceFromPort, getPortById } from "../state/deviceSelectors"
 import { DeviceHub } from "@mui/icons-material"
-import { ConnectionActions, ConnectionAddress, deriveConnectionId, isConnectionValid, useConnections, useConnectionsDispatch } from "../state/connectionContext"
-import { AlertActions, useAlertsDispatch } from "../state/alertContext"
+import { ConnectionAddress, deriveConnectionId, isConnectionCompatible, useConnections, useConnectionsDispatch } from "../state/connectionContext"
 
 
 export function ConnectionGrid () {
     const devices = useDevices()
     const connections = useConnections()
-    const connectionsDispatch = useConnectionsDispatch()
     const [hoveredConnection, setHoveredConnection] = useState<ConnectionAddress | null>(null)
     
     const connectionMap = useMemo(() => connections?.map(c => c.id), [connections])
@@ -36,8 +34,6 @@ export function ConnectionGrid () {
         const outputDevice = getDeviceFromPort({ devices, port: hoveredConnection.output })
 
         if(!(input && output)) return null
-        
-        console.count('HighlightStyles')
         
         return (
             <style>
@@ -67,6 +63,15 @@ export function ConnectionGrid () {
                 }
                 `
             }
+
+            { connections?.map(c => 
+                    `
+                    ${tableSelector} td.input-port-id-${c.inputPort.id},
+                    ${tableSelector} td.output-port-id-${c.outputPort.id} {
+                        background-color: var(--table-disabled-color) !important;
+                    }
+                    `
+            )}
             </style>
         )
     }
@@ -76,7 +81,6 @@ export function ConnectionGrid () {
 
 const GridTable = memo(function GridTable({ connectionMap, setHoveredConnection }: { connectionMap?: string[], setHoveredConnection: Dispatch<SetStateAction<ConnectionAddress | null>> }) {
     const devices = useDevices()
-    const connections = useConnections()
     const connectionsDispatch = useConnectionsDispatch()
 
     const decoratedDevices = devices?.map(d => ({ 
@@ -99,7 +103,7 @@ const GridTable = memo(function GridTable({ connectionMap, setHoveredConnection 
         } else {
             const inputPort = getPortById(devices, input)
             const outputPort = getPortById(devices, output)
-            if(inputPort && outputPort) {
+            if(inputPort && outputPort && isConnectionCompatible({ input: inputPort, output: outputPort })) {
                 connectionsDispatch?.({
                     type: 'add',
                     connection: {
@@ -111,60 +115,58 @@ const GridTable = memo(function GridTable({ connectionMap, setHoveredConnection 
         }
     }, [devices, connectionsDispatch])
 
-    console.count('GridTable')
-    
     return (
         <table className="connection-grid mb-8">
             <colgroup>
             <col className="output_headers" span={2} />
-            { inputDevices?.map(d => 
-                <col className="device" key={ `device_col_${d.id}` } span={ d.inputPorts.length } />
-            )}
+                { inputDevices?.map(d => 
+                    <col className="device" key={ `device_col_${d.id}` } span={ d.inputPorts.length } />
+                )}
             </colgroup>
             <thead>
-            <tr>
-            <td colSpan={2}></td>
-            { inputDevices?.map(d =>
-                <th className="device" id={ `input_device_${d.id}` } key={ `inputs_${d.id}` } colSpan={ d.inputPorts.length }><span>{ d.name }</span></th>
-            )}
-            </tr>
-            <tr>
-            <td colSpan={2}><DeviceHub sx={{ fontSize: 72 }} /></td>
-            { inputDevices?.map(d => d.inputPorts.map((p, i, a) => 
-                <th className={ classNames('port', { 'first-port': i === 0, 'last-port': i === a.length - 1 }) } id={ `input_port_${p.id}` } key={ `input_port_${p.id}` }><span>{ p.name }</span></th>
-            ))}
-            </tr>
-            </thead>
-            <tbody>
-            { outputDevices?.map((d, di) => d.outputPorts.map((p, i, a) => (
-                <tr 
-                    className={classNames(
-                        {
-                            'first-port': i === 0,
-                            'last-port': i === a.length,
-                        },
-                        !(di & 1) ? 'odd' : 'even',
+                <tr>
+                    <td colSpan={2}></td>
+                    { inputDevices?.map(d =>
+                        <th className="device" id={ `input_device_${d.id}` } key={ `inputs_${d.id}` } colSpan={ d.inputPorts.length }><span>{ d.name }</span></th>
                     )}
-                    key={`output_port_${p.id}`}
-                >
-                    { i === 0 && 
-                        <th className="device" id={ `output_device_${d.id}` } rowSpan={ d.outputPorts.length }>{ d.name }</th>
-                    }
-                    <th className="port">{ p.name }</th>
-                    { inputDevices?.map(d => d.inputPorts.map(inPort => 
-                        <ConnectionNode
-                            inputId={ inPort.id }
-                            inputType={ inPort.type }
-                            outputId={ p.id}
-                            outputType={ p.type }
-                            isConnected={ !!connectionMap?.includes(deriveConnectionId({ input: inPort, output: p })) }
-                            toggleConnection={ toggleConnection }
-                            setHoveredConnection={ setHoveredConnection }
-                            key={`connection_${p.id}_${inPort.id}`}
-                        />
+                </tr>
+                <tr>
+                    <td colSpan={2}><DeviceHub sx={{ fontSize: 72 }} /></td>
+                    { inputDevices?.map(d => d.inputPorts.map((p, i, a) => 
+                        <th className={ classNames('port', { 'first-port': i === 0, 'last-port': i === a.length - 1 }) } id={ `input_port_${p.id}` } key={ `input_port_${p.id}` }><span>{ p.name }</span></th>
                     ))}
                 </tr>
-            )))}
+            </thead>
+            <tbody>
+                { outputDevices?.map((d, di) => d.outputPorts.map((p, i, a) => (
+                    <tr 
+                        className={classNames(
+                            {
+                                'first-port': i === 0,
+                                'last-port': i === a.length,
+                            },
+                            !(di & 1) ? 'odd' : 'even',
+                        )}
+                        key={`output_port_${p.id}`}
+                    >
+                        { i === 0 && 
+                            <th className="device" id={ `output_device_${d.id}` } rowSpan={ d.outputPorts.length }>{ d.name }</th>
+                        }
+                        <th className="port">{ p.name }</th>
+                        { inputDevices?.map(d => d.inputPorts.map(inPort => 
+                            <ConnectionNode
+                                inputId={ inPort.id }
+                                inputType={ inPort.type }
+                                outputId={ p.id}
+                                outputType={ p.type }
+                                isConnected={ !!connectionMap?.includes(deriveConnectionId({ input: inPort, output: p })) }
+                                toggleConnection={ toggleConnection }
+                                setHoveredConnection={ setHoveredConnection }
+                                key={`connection_${p.id}_${inPort.id}`}
+                            />
+                        ))}
+                    </tr>
+                )))}
             </tbody>
         </table>
     )
@@ -189,7 +191,7 @@ const ConnectionNode = memo(function ConnectionNode({
     toggleConnection: Function,
     setHoveredConnection: Dispatch<SetStateAction<ConnectionAddress | null>>,
 }) {
-    console.count('ConnectionNode')
+    // console.count('ConnectionNode')
     return (
         <td
             id={ `port-intersection-${outputId}-${inputId}` }

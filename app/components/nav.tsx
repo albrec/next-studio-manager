@@ -16,6 +16,7 @@ export default function Nav() {
                 <ButtonGroup className="flex">
                     <NavButton href="/devices">Devices</NavButton>
                     <NavButton href="/connections">Connections</NavButton>
+                    <NavButton href="/midi-channels">MIDI Channels</NavButton>
                 </ButtonGroup>
                 <GroupName>Setup</GroupName>
             </Box>

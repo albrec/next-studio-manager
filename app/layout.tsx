@@ -39,7 +39,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   <FileControls />
                 </Box>
               </header>
-              {children}
+              <main>
+                {children}
+              </main>
             </body>
           </ThemeProvider>
         </AppRouterCacheProvider>

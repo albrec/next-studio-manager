@@ -1,6 +1,11 @@
 {
-  "extends": "next/core-web-vitals",
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:react/recommended"
+  ],
   "rules": {
-    "semi": ["error", "never"]
+    "semi": ["error", "never"],
+    "indent": ["error", 2],
+    "react/react-in-jsx-scope": "off"
   }
 }

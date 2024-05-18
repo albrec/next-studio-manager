@@ -11,9 +11,8 @@ const ANIMATE_TIME = 1000
 export default function Alerts() {
     const alerts = useAlerts()
     
-
     return (
-        <Box className="w-full h-0 z-30 overflow-visible">
+        <Box className="sticky top-0 left-0 w-full h-0 z-30 overflow-visible">
             { alerts.map(alert => (
                 <AlertMsg key={ `alert_${alert.id}` }  alert={ alert } />
             ))}

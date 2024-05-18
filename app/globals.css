@@ -45,6 +45,11 @@
 body {
   background-color: rgb(var(--background-rgb));
   color: rgb(var(--foreground-rgb));
+
+  > header,
+  > main {
+    padding: 0 2em;
+  }
 }
 
 table.connection-grid {

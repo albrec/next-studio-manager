@@ -1,8 +1,8 @@
 "use client"
 
-import { AlertsProvider } from "./state/alertContext"
-import { ConnectionsProvider } from "./state/connectionContext"
-import { DevicesProvider } from "./state/deviceContext"
+import { AlertsProvider } from "./alertContext"
+import { ConnectionsProvider } from "./connectionContext"
+import { DevicesProvider } from "./deviceContext"
 
 export default function ContextWrapper ({ children }: Readonly<{ children: React.ReactNode }>) {
     return (

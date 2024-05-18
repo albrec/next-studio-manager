@@ -1,17 +1,22 @@
-import { useState } from "react"
+import { Dispatch, SetStateAction, useState } from "react"
 import { Device as DeviceType, NewPort, Port, PortTypes } from "../state/descriptions"
 import { useDevicesDispatch } from "../state/deviceContext"
 import PortForm from "./portForm"
 import classNames from "classnames"
 import DeviceForm from "./deviceForm"
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, ButtonGroup, Card, CardActions, CardContent, CardHeader, Checkbox, Divider, IconButton, Paper, Stack, Typography } from "@mui/material"
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, ButtonGroup, Card, CardActions, CardContent, CardHeader, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Paper, Stack, Typography } from "@mui/material"
 import { Add, ArrowDropDown, Delete, Edit, Piano, Usb, VolumeUp, ContentCopy } from "@mui/icons-material"
+import { useAlertsDispatch } from "../state/alertContext"
+import DeleteModal from "../components/deleteModal"
 
 export default function Device ({ device }: { device: DeviceType }) {
     const dispatch = useDevicesDispatch()
+    const alertsDispatch = useAlertsDispatch()
     const [deviceModalOpen, setDeviceModalOpen] = useState(false)
     const [portModalOpen, setPortModalOpen] = useState(false)
     const [editPort, setEditPort] = useState<Port | NewPort | null>(null)
+    const [deviceDeleteCheck, setDeviceDeleteCheck] = useState(false)
+    const [portDeleteCheck, setPortDeleteCheck] = useState<Port | false>(false)
 
     const hasAudio = device.ports.some(p => p.type === PortTypes.AUDIO)
     const hasMidi = device.ports.some(p => p.type === PortTypes.MIDI)
@@ -25,6 +30,18 @@ export default function Device ({ device }: { device: DeviceType }) {
     function closePortModal() {
         setEditPort(null)
         setPortModalOpen(false)
+    }
+
+    function deleteDevice() {
+        dispatch?.({ type: 'delete', id: device.id })
+        alertsDispatch?.({
+            type: 'add',
+            alert: {
+                severity: "info",
+                msg: `Device deleted ${device.name}`,
+                transient: true,
+            }
+        })
     }
 
     function sortPorts(ports: Port[]) {
@@ -59,9 +76,17 @@ export default function Device ({ device }: { device: DeviceType }) {
         return newPort
     }
 
+    function deletePort(port: Port) {
+        dispatch?.({ type: 'deletePort', id: device.id, portId: port.id })
+    }
+
     return (
         <section>
             <Paper className="p-8 mb-8" elevation={ 3 }>
+
+                { deviceModalOpen && <DeviceForm device={ device } open={ deviceModalOpen } onClose={ () => setDeviceModalOpen(false) } /> }
+                { deviceDeleteCheck && <DeleteModal name={ device.name } open={ deviceDeleteCheck } onDelete={ deleteDevice } onClose={ setDeviceDeleteCheck } /> }
+                { portDeleteCheck && <DeleteModal name={ `${device.name} port ${portDeleteCheck?.name}` } open={ !!portDeleteCheck } onDelete={ () => deletePort(portDeleteCheck) } onClose={ setPortDeleteCheck } /> }
             
                 <Box className="flex justify-between items-center w-full mb-4">
                     <Box className="flex items-baseline gap-4">
@@ -78,13 +103,12 @@ export default function Device ({ device }: { device: DeviceType }) {
                     </Box>
                     <ButtonGroup className="justify-self-end">
                         <Button onClick={ e => { setDeviceModalOpen(true) } }><Edit /></Button>
-                        <Button onClick={e => dispatch?.({ type: 'delete', id: device.id })}><Delete /></Button>
+                        <Button onClick={ e => setDeviceDeleteCheck(true) }><Delete /></Button>
                         <Button onClick={ e => openPortModal() }>Add Port <Add /></Button>
                     </ButtonGroup>
             
                 </Box>
             
-                { deviceModalOpen && <DeviceForm device={ device } open={ deviceModalOpen } onClose={ () => setDeviceModalOpen(false) } /> }
                 <Accordion className="bg-stone-100">
                     <AccordionSummary expandIcon={ <ArrowDropDown /> }>
                         <Typography className="mr-4" variant="h4">Ports</Typography>
@@ -120,9 +144,9 @@ export default function Device ({ device }: { device: DeviceType }) {
                                         }
                                     </CardContent>
                                     <CardActions>
-                                        <IconButton onClick={ e => { openPortModal(port) } }><Edit fontSize="small" /></IconButton>
-                                        <IconButton onClick={ e => dispatch?.({ type: 'deletePort', id: device.id, portId: port.id }) }><Delete fontSize="small" /></IconButton>
-                                        <IconButton onClick={ e => { openPortModal(duplicatePort(port)) } }><ContentCopy fontSize="small" /></IconButton>
+                                        <IconButton onClick={ () => openPortModal(port) }><Edit fontSize="small" /></IconButton>
+                                        <IconButton onClick={ () => setPortDeleteCheck(port) }><Delete fontSize="small" /></IconButton>
+                                        <IconButton onClick={ () => openPortModal(duplicatePort(port)) }><ContentCopy fontSize="small" /></IconButton>
                                     </CardActions>
                                 </Card>
                             ))}

@@ -1,14 +1,16 @@
 import { v4 as uuidv4 } from 'uuid'
 import { Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react"
 import { useDevicesDispatch } from "../state/deviceContext"
-import { Device, MidiChannels } from '../state/descriptions'
+import { Device, MidiChannelNumbers } from '../state/descriptions'
 import { Box, Button, ButtonGroup, Dialog, DialogTitle, FormControl, IconButton, InputLabel, TextField, Typography } from '@mui/material'
 import { Close } from '@mui/icons-material'
+import { useAlertsDispatch } from '../state/alertContext'
 
 export default function DeviceForm ({ device, open, onClose }: { device?: Device, open: boolean, onClose(): void }) {
     const [name, setName] = useState(device?.name || '')
     const [midiChannels, setMidiChannels] = useState(device?.midiChannels || [])
     const dispatch = useDevicesDispatch()
+    const alertsDispatch = useAlertsDispatch()
 
     function closeModal() {
         onClose()
@@ -34,6 +36,14 @@ export default function DeviceForm ({ device, open, onClose }: { device?: Device
                     name,
                     ports: [],
                     midiChannels,
+                }
+            })
+            alertsDispatch?.({
+                type: 'add',
+                alert: {
+                    severity: 'success',
+                    msg: `Device added ${name}.`,
+                    transient: true,
                 }
             })
         }
@@ -85,7 +95,7 @@ function MidiButtons({ midiChannels = [], setMidiChannels }: { midiChannels?: nu
         <Box>
             <InputLabel>MIDI Channels</InputLabel>
             <ButtonGroup className="flex w-full" size="small">
-                { MidiChannels.map(c => 
+                { MidiChannelNumbers.map(c => 
                     <Button className=" basis-0 grow min-w-0" variant={ midiChannels.includes(c) ? 'contained' : 'outlined' } onClick={ () => toggleMidiChannel(c) } key={ `midi_channel_${c}` }>{ c }</Button>
                 ) }
             </ButtonGroup>

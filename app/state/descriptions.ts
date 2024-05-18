@@ -25,7 +25,12 @@ export type Device = {
     midiChannels?: number[]
 }
 
-export const MidiChannels: number[] = [...Array(16).keys()].map(i => i + 1)
+export const MidiChannelNumbers: number[] = [...Array(16).keys()].map(i => i + 1)
+
+export type MidiChannel = {
+    channel: number,
+    name: string,
+}
 
 /* The `export enum PortTypes` block is defining an enumeration in TypeScript. In this specific case,
 it is defining a set of constants representing different types of ports that can be present in a

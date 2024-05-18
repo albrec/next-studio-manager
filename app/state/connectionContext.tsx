@@ -2,7 +2,6 @@
 
 import { Dispatch, createContext, useContext, useEffect, useReducer, useState } from 'react'
 import { type Port, type Connection, PortTypes, PortDirectionality, PortIntersection } from './descriptions'
-import { getPortById } from './deviceSelectors'
 
 const ConnectionsContext = createContext<Connection[] | null>(null)
 const ConnectionsDispatchContext = createContext<Dispatch<ConnectionActions> | null>(null)

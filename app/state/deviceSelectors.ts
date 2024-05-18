@@ -1,4 +1,3 @@
-import { ConnectionAddress } from "./connectionContext"
 import { Device, Port } from "./descriptions"
 
 export function getDeviceFromPort({ port, devices }: { port: Port | string, devices: Device[] }) {

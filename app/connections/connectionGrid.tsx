@@ -137,40 +137,33 @@ const GridTable = memo(function GridTable({ connectionMap, setHoveredConnection 
             </thead>
             <tbody>
             { outputDevices?.map((d, di) => d.outputPorts.map((p, i, a) => (
-                i < 1 ?
-                <tr className={ classNames("first-port", !(di & 1) ? 'odd' : 'even') } key={`output_port_${p.id}`}>
-                <th className="device" id={ `output_device_${d.id}` } rowSpan={ d.outputPorts.length }>{ d.name }</th>
-                <th className="port">{ p.name }</th>
-                { inputDevices?.map(d => d.inputPorts.map(inPort => 
-                    <ConnectionNode
-                        inputId={ inPort.id }
-                        inputType={ inPort.type }
-                        outputId={ p.id}
-                        outputType={ p.type }
-                        isConnected={ !!connectionMap?.includes(deriveConnectionId({ input: inPort, output: p })) }
-                        toggleConnection={ toggleConnection }
-                        setHoveredConnection={ setHoveredConnection }
-                        key={`connection_${p.id}_${inPort.id}`}
-                    />
-                ))}
+                <tr 
+                    className={classNames(
+                        {
+                            'first-port': i === 0,
+                            'last-port': i === a.length,
+                        },
+                        !(di & 1) ? 'odd' : 'even',
+                    )}
+                    key={`output_port_${p.id}`}
+                >
+                    { i === 0 && 
+                        <th className="device" id={ `output_device_${d.id}` } rowSpan={ d.outputPorts.length }>{ d.name }</th>
+                    }
+                    <th className="port">{ p.name }</th>
+                    { inputDevices?.map(d => d.inputPorts.map(inPort => 
+                        <ConnectionNode
+                            inputId={ inPort.id }
+                            inputType={ inPort.type }
+                            outputId={ p.id}
+                            outputType={ p.type }
+                            isConnected={ !!connectionMap?.includes(deriveConnectionId({ input: inPort, output: p })) }
+                            toggleConnection={ toggleConnection }
+                            setHoveredConnection={ setHoveredConnection }
+                            key={`connection_${p.id}_${inPort.id}`}
+                        />
+                    ))}
                 </tr>
-                :
-                <tr className={ classNames({ 'last-port': i === a.length - 1 }, !(di & 1) ? 'odd' : 'even') } key={`output_port_${p.id}`}>
-                <th className="port">{ p.name }</th>
-                { inputDevices?.map(d => d.inputPorts.map(inPort => 
-                    <ConnectionNode
-                        inputId={ inPort.id }
-                        inputType={ inPort.type }
-                        outputId={ p.id}
-                        outputType={ p.type }
-                        isConnected={ !!connectionMap?.includes(deriveConnectionId({ input: inPort, output: p })) }
-                        toggleConnection={ toggleConnection }
-                        setHoveredConnection={ setHoveredConnection }
-                        key={`connection_${p.id}_${inPort.id}`}
-                    />
-                ))}
-                </tr>
-                
             )))}
             </tbody>
         </table>

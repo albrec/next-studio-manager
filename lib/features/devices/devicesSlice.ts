@@ -3,6 +3,7 @@ import { PayloadAction, createEntityAdapter, createSlice } from '@reduxjs/toolki
 import type { RootState } from '@/lib/store'
 import { Device, DevicePayload } from './deviceTypes'
 import { PortPayload } from '../ports/portTypes'
+import { addPort } from '../ports/portsSlice'
 
 const NAMESPACE = 'devices'
 
@@ -35,7 +36,8 @@ export const devicesSlice = createSlice({
         return {
           payload: {
             ...device,
-            id: device.id || uuidv4()
+            portIds: device.portIds || [],
+            id: device.id || uuidv4(),
           } as Device
         }
       },
@@ -44,31 +46,23 @@ export const devicesSlice = createSlice({
       }
     },
     remove: devicesAdapter.removeOne,
-    addPort: {
-      prepare: (deviceId: Device['id'], port: PortPayload) => {
-        console.log('prepare', deviceId, port)
-        return {
-          payload: {
-            ...port,
-            deviceId,
-          }
-        }
-      },
-      reducer: (state, action: PayloadAction<PortPayload & { deviceId: Device['id'] }>) => {
-        console.log('addPort from deviceSlices', action)
-      }
-    },
+    reducer: (state, action: PayloadAction<PortPayload & { deviceId: Device['id'] }>) => {
+    }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(addPort, (state, action) => {
+      state.entities[action.payload.deviceId].portIds.push(action.payload.port.id)
+    })
   }
 })
 export default devicesSlice.reducer
 
 
 // Reducers
-export const { load, upsert, remove, addPort } = devicesSlice.actions
+export const { load, upsert, remove } = devicesSlice.actions
 
 
 // Selectors
-// export const { selectById: get, selectAll: getAll, selectIds: getIds, selectTotal: getCount } = devicesAdapter.getSelectors((state: RootState) => state[NAMESPACE])
 export const getDevice = selectById
 export const getDevices = selectAll
 export const getDeviceIds = selectIds

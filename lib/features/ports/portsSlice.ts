@@ -3,7 +3,7 @@ import { PayloadAction, combineReducers, createAction, createEntityAdapter, crea
 import type { RootState } from '@/lib/store'
 import { Port, PortPayload } from './portTypes'
 import { Device } from '../devices/deviceTypes'
-import { getDevice } from '../devices/devicesSlice'
+import { devicesAdapter, getDevice, getDeviceIds, selectById as selectDeviceById } from '../devices/devicesSlice'
 
 const NAMESPACE = 'ports'
 
@@ -42,7 +42,6 @@ export const portsSlice = createSlice({
     },
     remove: portsAdapter.removeOne,
     addPort: (state, action: PayloadAction<{ deviceId: Device['id'], port: Port}>) => {
-      console.log('addPort reducer portsSlice', action.payload)
       portsAdapter.addOne(state, action.payload.port)
     }
   }
@@ -52,7 +51,6 @@ export default portsSlice.reducer
 // Actions
 export const { load, upsert, remove } = portsSlice.actions
 export const addPort = createAction(`${NAMESPACE}/addPort`, (deviceId: Device['id'], port: PortPayload) => {
-  console.log('prepare', deviceId, port)
   return {
     payload: {
       port: {
@@ -71,9 +69,7 @@ export const getPorts = selectAll
 export const getIds = selectIds
 export const getPortCount = selectTotal
 export const getPortsByDevice = (deviceId: Device['id']) => (state: RootState) => {
-  const portIds = getDevice(state, deviceId).portIds
-  // return portIds.map(pid => selectById(state, pid))
-  return []
+  return getDevice(state, deviceId).portIds.map(pid => selectById(state, pid))
 }
 
 

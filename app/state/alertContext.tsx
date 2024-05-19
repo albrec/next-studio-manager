@@ -10,40 +10,40 @@ const AlertDispatchContext = createContext<Dispatch<AlertActions> | null>(null)
 const initialState: Alert[] = []
 
 export function useAlerts() {
-    return useContext(AlertContext)
+  return useContext(AlertContext)
 }
 
 export function useAlertsDispatch() {
-    return useContext(AlertDispatchContext)
+  return useContext(AlertDispatchContext)
 }
 
 export function AlertsProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-    const [alerts, dispatch] = useReducer(alertReducer, initialState)
+  const [alerts, dispatch] = useReducer(alertReducer, initialState)
 
-    return (
-        <AlertContext.Provider value={ alerts }>
-            <AlertDispatchContext.Provider value={ dispatch }>
-                { children }
-            </AlertDispatchContext.Provider>
-        </AlertContext.Provider>
-    )
+  return (
+    <AlertContext.Provider value={ alerts }>
+      <AlertDispatchContext.Provider value={ dispatch }>
+        { children }
+      </AlertDispatchContext.Provider>
+    </AlertContext.Provider>
+  )
 }
 
 function alertReducer(alerts: Alert[], action: AlertActions): Alert[] {
-    switch(action.type) {
-        case 'add': {
-            return [
-                ...alerts,
-                {
-                    ...action.alert,
-                    id: uuidv4(),
-                }
-            ]
-        }
-        case 'delete': {
-            return alerts.filter(alert => alert.id !== action.id)
-        }
-    }
+  switch(action.type) {
+  case 'add': {
+    return [
+      ...alerts,
+      {
+        ...action.alert,
+        id: uuidv4(),
+      }
+    ]
+  }
+  case 'delete': {
+    return alerts.filter(alert => alert.id !== action.id)
+  }
+  }
 }
 
 type AddAlert = { type: 'add', alert: AlertBase }

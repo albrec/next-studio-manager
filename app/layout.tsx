@@ -3,7 +3,7 @@ import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
-import { CssBaseline, Typography, ThemeProvider, Box } from "@mui/material"
+import { CssBaseline, Typography, ThemeProvider, Box, Divider } from "@mui/material"
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 
 
@@ -42,6 +42,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <main>
                 {children}
               </main>
+              <footer className="flex justify-around bg-zinc-500 text-white mt-4 p-4">
+                <Box>Next Studio Manager™</Box>
+                <Box>© David Souza | AinaTek</Box>
+              </footer>
             </body>
           </ThemeProvider>
         </AppRouterCacheProvider>

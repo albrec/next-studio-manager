@@ -5,13 +5,13 @@ import { ConnectionsProvider } from "./connectionContext"
 import { DevicesProvider } from "./deviceContext"
 
 export default function ContextWrapper ({ children }: Readonly<{ children: React.ReactNode }>) {
-    return (
-        <AlertsProvider>
-            <DevicesProvider>
-                <ConnectionsProvider>
-                    { children }
-                </ConnectionsProvider>
-            </DevicesProvider>
-        </AlertsProvider>
-    )
+  return (
+    <AlertsProvider>
+      <DevicesProvider>
+        <ConnectionsProvider>
+          { children }
+        </ConnectionsProvider>
+      </DevicesProvider>
+    </AlertsProvider>
+  )
 }

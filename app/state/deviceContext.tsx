@@ -104,57 +104,57 @@ type DeviceActions = LoadDevices | AddDevice | UpdateDevice | DeleteDevice | Add
  */
 function devicesReducer(devices: Device[], action: DeviceActions): Device[] {
   switch (action.type) {
-    case 'load': {
-      return action.devices
-    }
-    case 'add': {
-      return [...devices, action.device]
-    }
-    case 'update': {
-      return devices.map(d => {
-        if (action.device?.id && d.id === action.device.id) {
-          return action.device
-        } else {
-          return d
+  case 'load': {
+    return action.devices
+  }
+  case 'add': {
+    return [...devices, action.device]
+  }
+  case 'update': {
+    return devices.map(d => {
+      if (action.device?.id && d.id === action.device.id) {
+        return action.device
+      } else {
+        return d
+      }
+    })
+  }
+  case 'delete': {
+    return devices.filter(d => d.id !== action.id)
+  }
+  case 'addPort': {
+    return devices.map(d => {
+      if(d.id === action.id) {
+        return {
+          ...d,
+          ports: d.ports.concat(action.port)
         }
-      })
-    }
-    case 'delete': {
-      return devices.filter(d => d.id !== action.id)
-    }
-    case 'addPort': {
-      return devices.map(d => {
-        if(d.id === action.id) {
-          return {
-            ...d,
-            ports: d.ports.concat(action.port)
+      } else {
+        return d
+      }
+    })
+  }
+  case 'updatePort': {
+    return devices.map(d => {
+      if(d.id === action.id) {
+        d.ports = d.ports.map(p => {
+          if(p.id === action.port.id) {
+            return action.port
+          } else {
+            return p
           }
-        } else {
-          return d
-        }
-      })
-    }
-    case 'updatePort': {
-      return devices.map(d => {
-        if(d.id === action.id) {
-          d.ports = d.ports.map(p => {
-            if(p.id === action.port.id) {
-              return action.port
-            } else {
-              return p
-            }
-          })
-        }
-        return d
-      })
-    }
-    case 'deletePort': {
-      return devices.map(d => {
-        if(d.id === action.id) {
-          d.ports = d.ports.filter(p => p.id !== action.portId)
-        }
-        return d
-      })
-    }
+        })
+      }
+      return d
+    })
+  }
+  case 'deletePort': {
+    return devices.map(d => {
+      if(d.id === action.id) {
+        d.ports = d.ports.filter(p => p.id !== action.portId)
+      }
+      return d
+    })
+  }
   }
 }

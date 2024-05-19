@@ -20,9 +20,9 @@ export default function Connections () {
       <Typography variant="h1">Connections</Typography>
       { devices?.length ? 
         <ConnectionGrid />
-      :  
+        :  
         <Typography>No devices added. Please load a file or add devices from the <Link href="/devices">devices page.</Link></Typography>
       }
     </>
-    )
-  }
+  )
+}

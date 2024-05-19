@@ -36,9 +36,9 @@ export function ConnectionsProvider({ children }: Readonly<{ children: React.Rea
   
   return (
     <ConnectionsContext.Provider value={ connections }>
-    <ConnectionsDispatchContext.Provider value={ dispatch }>
-    {children}
-    </ConnectionsDispatchContext.Provider>
+      <ConnectionsDispatchContext.Provider value={ dispatch }>
+        {children}
+      </ConnectionsDispatchContext.Provider>
     </ConnectionsContext.Provider>
   )
 }
@@ -66,24 +66,24 @@ export type ConnectionActions = LoadConnections | AddConnection | DeleteConnecti
 
 function connectionReducer(connections: Connection[], action: ConnectionActions): Connection[] {
   switch (action.type) {
-    case 'load': {
-      return action.connections
-    }
-    case 'add': {
-      if(connections.some(c => c.inputPort.id === action.connection.inputPort.id || c.outputPort.id === action.connection.outputPort.id)) {
-        return [...connections]
-      } else {
-        const newConnection = {
-          ...action.connection,
-          id: deriveConnectionId({ output: action.connection.outputPort, input: action.connection.inputPort })
-        }
-        connections.some(c => c.inputPort.id === action.connection.inputPort.id || c.outputPort.id === action.connection.outputPort.id)
-        return [...connections, newConnection]
+  case 'load': {
+    return action.connections
+  }
+  case 'add': {
+    if(connections.some(c => c.inputPort.id === action.connection.inputPort.id || c.outputPort.id === action.connection.outputPort.id)) {
+      return [...connections]
+    } else {
+      const newConnection = {
+        ...action.connection,
+        id: deriveConnectionId({ output: action.connection.outputPort, input: action.connection.inputPort })
       }
+      connections.some(c => c.inputPort.id === action.connection.inputPort.id || c.outputPort.id === action.connection.outputPort.id)
+      return [...connections, newConnection]
     }
-    case 'delete': {
-      return connections.filter(c => c.id !== action.id)
-    }
+  }
+  case 'delete': {
+    return connections.filter(c => c.id !== action.id)
+  }
   }
 }
 

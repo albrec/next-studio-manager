@@ -1,9 +1,10 @@
-import { useDevices } from "@/app/state/deviceContext"
-import Device from "./device"
 import { Stack } from "@mui/material"
+import { getDevices } from "@/lib/features/devices/devicesSlice"
+import { useSelector } from "react-redux"
+import Device from "./device"
 
 export default function DevicesList () {
-  const devices = useDevices()
+  const devices = useSelector(getDevices)
 
   return (
     <>

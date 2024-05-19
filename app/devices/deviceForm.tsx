@@ -1,15 +1,19 @@
 import { v4 as uuidv4 } from 'uuid'
 import { Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react"
 import { useDevicesDispatch } from "../state/deviceContext"
-import { Device, MidiChannelNumbers } from '../state/descriptions'
+import { MidiChannelNumbers } from '../state/descriptions'
 import { Box, Button, ButtonGroup, Dialog, DialogTitle, FormControl, IconButton, InputLabel, TextField, Typography } from '@mui/material'
 import { Close } from '@mui/icons-material'
 import { useAlertsDispatch } from '../state/alertContext'
+import { useDispatch } from 'react-redux'
+import { upsert } from '@/lib/features/devices/devicesSlice'
+import { Device } from '@/lib/features/devices/deviceTypes'
 
 export default function DeviceForm ({ device, open, onClose }: { device?: Device, open: boolean, onClose(): void }) {
   const [name, setName] = useState(device?.name || '')
   const [midiChannels, setMidiChannels] = useState(device?.midiChannels || [])
-  const dispatch = useDevicesDispatch()
+  // const dispatch = useDevicesDispatch()
+  const dispatch = useDispatch()
   const alertsDispatch = useAlertsDispatch()
 
   function closeModal() {
@@ -19,34 +23,11 @@ export default function DeviceForm ({ device, open, onClose }: { device?: Device
   function submitForm(e: FormEvent) {
     e.preventDefault()
     e.stopPropagation()
-    if(!!device) {
-      dispatch?.({
-        type: 'update',
-        device: {
-          ...device,
-          name,
-          midiChannels,
-        }
-      })
-    } else {
-      dispatch?.({
-        type: 'add',
-        device: {
-          id: uuidv4(),
-          name,
-          ports: [],
-          midiChannels,
-        }
-      })
-      alertsDispatch?.({
-        type: 'add',
-        alert: {
-          severity: 'success',
-          msg: `Device added ${name}.`,
-          transient: true,
-        }
-      })
-    }
+    dispatch(upsert({
+      id: device?.id,
+      name,
+      midiChannels,
+    }))
     closeModal()
   }
 

@@ -1,10 +1,14 @@
 import { v4 as uuidv4 } from 'uuid'
 import { FormEvent, useState } from "react"
 import { useDevicesDispatch } from "../state/deviceContext"
-import { AudioPort, AudioPortSubTypes, Device, MidiPort, NewPort, Port, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions'
+import { AudioPort, AudioPortSubTypes, MidiPort, NewPort, Port, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions'
 import classNames from 'classnames'
 import { Box, Button, Checkbox, Dialog, DialogTitle, FormControl, FormControlLabel, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { Close } from '@mui/icons-material'
+import { Device } from '@/lib/features/devices/deviceTypes'
+import { useDispatch } from 'react-redux'
+import { AudioPortPayload, MidiPortPayload, PortPayload, UsbPortPayload } from '@/lib/features/ports/portTypes'
+import { addPort } from '@/lib/features/ports/portsSlice'
 
 export default function PortForm ({ port, device, open, onClose }: { port?: Port | NewPort | null, device: Device, open: boolean, onClose(): void }) {
   const [name, setName] = useState(port?.name || '')
@@ -14,7 +18,8 @@ export default function PortForm ({ port, device, open, onClose }: { port?: Port
   const [io, setIo] = useState(port?.io || '')
   const [host, setHost] = useState(port?.type === PortTypes.USB && port?.host ? port.host : false)
   const [submitted, setSubmitted] = useState(false)
-  const dispatch = useDevicesDispatch()
+  // const dispatch = useDevicesDispatch()
+  const dispatch = useDispatch()
 
   const isNewPort = !port?.id
 
@@ -206,7 +211,7 @@ export default function PortForm ({ port, device, open, onClose }: { port?: Port
 
 
 
-  function portIsValid(port: Port) {
+  function portIsValid(port: PortPayload) {
     if(port.type === PortTypes.AUDIO && port.subType && port.io && port.connector && port.name) {
       return true
     } else if(port.type === PortTypes.MIDI && port.io && port.connector && port.name) {
@@ -224,41 +229,41 @@ export default function PortForm ({ port, device, open, onClose }: { port?: Port
     e.preventDefault()
     e.stopPropagation()
     let p = {
-      id: port?.id || uuidv4(),
       name: name || deriveName(),
       type,
       connector,
       io,
-    } as Port
+    } as PortPayload
     switch(type) {
     case PortTypes.USB: {
       p = {
         ...p,
         io: PortDirectionality.BIDIRECTIONAL,
         host,
-      } as UsbPort
+      } as UsbPortPayload
       break
     }
     case PortTypes.AUDIO: {
       p = {
         ...p,
         subType,
-      } as AudioPort
+      } as AudioPortPayload
       break
     }
     case PortTypes.MIDI: {
       p = {
         ...p,
-      } as MidiPort
+      } as MidiPortPayload
       break
     }
     }
     if (portIsValid(p)) {
-      dispatch?.({
-        type: isNewPort ? 'addPort' : 'updatePort',
-        id: device.id,
-        port: p,
-      })
+      // dispatch({
+      //   type: isNewPort ? 'addPort' : 'updatePort',
+      //   id: device.id,
+      //   port: p,
+      // })
+      dispatch(addPort(device.id, p))
       closeModal()
     }
     setSubmitted(true)

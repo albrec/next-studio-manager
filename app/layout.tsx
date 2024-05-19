@@ -10,10 +10,13 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 import theme from "./theme"
 import "./globals.css"
 
+import { Provider } from "react-redux"
 import ContextWrapper from "./state/contextWrappers"
 import FileControls from "./components/fileControls"
 import Alerts from "./components/alerts"
 import Nav from "./components/nav"
+import StoreProvider from "./storeProvider"
+
 
 export const metadata: Metadata = {
   title: { default: "Next Studio Manager", template: "%s | Next Studio Manager" },
@@ -26,30 +29,32 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <ContextWrapper>
-        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-          <ThemeProvider theme={ theme }>
-            <CssBaseline />
-            <body>
-              <Alerts />
-              <header className="flex flex-col items-center">
-                <Typography className="my-4 font-thin" variant="h3">Next Studio Manager</Typography>
-                <Nav />
-                <Box className="absolute top-4 right-4">
-                  <FileControls />
-                </Box>
-              </header>
-              <main>
-                {children}
-              </main>
-              <footer className="flex justify-around bg-zinc-500 text-white mt-4 p-4">
-                <Box>Next Studio Manager™</Box>
-                <Box>© David Souza | AinaTek</Box>
-              </footer>
-            </body>
-          </ThemeProvider>
-        </AppRouterCacheProvider>
-      </ContextWrapper>
+      <StoreProvider>
+        <ContextWrapper>
+          <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+            <ThemeProvider theme={ theme }>
+              <CssBaseline />
+              <body>
+                <Alerts />
+                <header className="flex flex-col items-center">
+                  <Typography className="my-4 font-thin" variant="h3">Next Studio Manager</Typography>
+                  <Nav />
+                  <Box className="absolute top-4 right-4">
+                    <FileControls />
+                  </Box>
+                </header>
+                <main>
+                  {children}
+                </main>
+                <footer className="flex justify-around bg-zinc-500 text-white mt-4 p-4">
+                  <Box>Next Studio Manager™</Box>
+                  <Box>© David Souza | AinaTek</Box>
+                </footer>
+              </body>
+            </ThemeProvider>
+          </AppRouterCacheProvider>
+        </ContextWrapper>
+      </StoreProvider>
     </html>
   )
 }

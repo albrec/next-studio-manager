@@ -1,8 +1,11 @@
+import { Device } from "../devices/deviceTypes"
+
 type PortId = string
 
 interface PortBase {
-  name: string,
   id?: PortId,
+  name: string,
+  deviceId: Device['id'],
 }
 
 export interface AudioPortPayload extends PortBase {

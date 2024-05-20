@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
 import devicesReducer from './features/devices/devicesSlice'
 import portsReducer from './features/ports/portsSlice'
+import { localStorageMiddleware } from './middleware/localStorage'
 
 export const makeStore = () => configureStore({
   reducer: {
     devices: devicesReducer,
     ports: portsReducer,
   },
+  middleware: getDefaultMiddleware => getDefaultMiddleware().concat(localStorageMiddleware)
 })
 
 // Infer the type of makeStore

@@ -9,7 +9,7 @@ import { Box, Button, Typography } from "@mui/material"
 import { Add } from "@mui/icons-material"
 
 export default function Devices () {
-  const [modalOpen, setModalOpen] = useState(false)
+  const [modalOpen, setModalOpen] = useState<boolean | 'closing'>(false)
   return (
     <>
       <Head>
@@ -22,7 +22,7 @@ export default function Devices () {
       </Box>
     
     
-      { modalOpen && <DeviceForm open={ modalOpen } onClose={ () => setModalOpen(false) } /> }
+      { modalOpen && <DeviceForm open={ modalOpen === true } onClose={ () => setModalOpen('closing') } onExited={ () => setModalOpen(false) } /> }
       <DevicesList />
     </>
   )

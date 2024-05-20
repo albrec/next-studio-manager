@@ -11,12 +11,14 @@ import { Device } from "@/lib/features/devices/deviceTypes"
 import { remove } from "@/lib/features/devices/devicesSlice"
 import { useDispatch } from "react-redux"
 import PortList from "./portList"
+import PortForm from "./portForm"
 
 export default function DeviceComponent ({ device }: { device: Device }) {
   const dispatch = useDispatch()
   const alertsDispatch = useAlertsDispatch()
   const [deviceModalOpen, setDeviceModalOpen] = useState(false)
-  // const [portModalOpen, setPortModalOpen] = useState(false)
+  const [editDevice, setEditDevice] = useState<Device | null>(null)
+  const [portModalOpen, setPortModalOpen] = useState<boolean | 'closing'>(false)
   // const [editPort, setEditPort] = useState<Port | NewPort | null>(null)
   const [deviceDeleteCheck, setDeviceDeleteCheck] = useState(false)
   // const [portDeleteCheck, setPortDeleteCheck] = useState<Port | false>(false)
@@ -87,7 +89,7 @@ export default function DeviceComponent ({ device }: { device: Device }) {
     <section>
       <Paper className="p-8 mb-8" elevation={ 3 }>
 
-        { deviceModalOpen && <DeviceForm device={ device } open={ deviceModalOpen } onClose={ () => setDeviceModalOpen(false) } /> }
+        
         { deviceDeleteCheck && <DeleteModal name={ device.name } open={ deviceDeleteCheck } onDelete={ deleteDevice } onClose={ setDeviceDeleteCheck } /> }
         {/* { portDeleteCheck && <DeleteModal name={ `${device.name} port ${portDeleteCheck?.name}` } open={ !!portDeleteCheck } onDelete={ () => deletePort(portDeleteCheck) } onClose={ setPortDeleteCheck } /> } */}
             
@@ -105,17 +107,32 @@ export default function DeviceComponent ({ device }: { device: Device }) {
             )}
           </Box>
           <ButtonGroup className="justify-self-end">
-            <Button onClick={ e => { setDeviceModalOpen(true) } }><Edit /></Button>
-            <Button onClick={ e => setDeviceDeleteCheck(true) }><Delete /></Button>
-            {/* <Button onClick={ e => openPortModal() }>Add Port <Add /></Button> */}
+            <Button onClick={ () => { openEditDevice(device) } }><Edit /></Button>
+            <Button onClick={ () => setDeviceDeleteCheck(true) }><Delete /></Button>
+            <Button onClick={ () => setPortModalOpen(true) }>Add Port <Add /></Button>
           </ButtonGroup>
             
         </Box>
             
         <PortList device={ device } />
-            
-        {/* { portModalOpen && <PortForm port={ editPort } device={ device } open={ portModalOpen } onClose={ closePortModal } /> } */}
+
+        { editDevice && <DeviceForm device={ device } open={ deviceModalOpen } onClose={ () => setDeviceModalOpen(false) } onExited={ () => setEditDevice(null) } /> }
+        
+        { portModalOpen &&
+          <PortForm
+            device={ device }
+            open={ portModalOpen === true }
+            onClose={ () => setPortModalOpen('closing') }
+            onExited={ () => setPortModalOpen(false) }
+          />
+        }
+        
       </Paper>
     </section>
   )
+
+  function openEditDevice(device: Device) {
+    setDeviceModalOpen(true)
+    setEditDevice(device)
+  }
 }

@@ -8,9 +8,9 @@ import { Close } from '@mui/icons-material'
 import { Device } from '@/lib/features/devices/deviceTypes'
 import { useDispatch } from 'react-redux'
 import { AudioPortPayload, MidiPortPayload, PortPayload, UsbPortPayload } from '@/lib/features/ports/portTypes'
-import { addPort } from '@/lib/features/ports/portsSlice'
+import { addPort, update, upsert } from '@/lib/features/ports/portsSlice'
 
-export default function PortForm ({ port, device, open, onClose }: { port?: Port | NewPort | null, device: Device, open: boolean, onClose(): void }) {
+export default function PortForm ({ port, device, open, onClose, onExited }: { port?: Port | null, device: Device, open: boolean, onClose?(): void, onExited?(): void }) {
   const [name, setName] = useState(port?.name || '')
   const [type, setType] = useState(port?.type || '')
   const [subType, setSubType] = useState(port?.type === PortTypes.AUDIO && port?.subType ? port.subType : '')
@@ -18,17 +18,16 @@ export default function PortForm ({ port, device, open, onClose }: { port?: Port
   const [io, setIo] = useState(port?.io || '')
   const [host, setHost] = useState(port?.type === PortTypes.USB && port?.host ? port.host : false)
   const [submitted, setSubmitted] = useState(false)
-  // const dispatch = useDevicesDispatch()
   const dispatch = useDispatch()
 
   const isNewPort = !port?.id
 
   function closeModal() {
-    onClose()
+    onClose?.()
   }
 
   return (
-    <Dialog open={ open } onClose={ onClose }>
+    <Dialog open={ open } onClose={ onClose } TransitionProps={{ onExited }}>
       <Box className="p-12">
         <form
           onSubmit={ submitForm }
@@ -258,12 +257,14 @@ export default function PortForm ({ port, device, open, onClose }: { port?: Port
     }
     }
     if (portIsValid(p)) {
-      // dispatch({
-      //   type: isNewPort ? 'addPort' : 'updatePort',
-      //   id: device.id,
-      //   port: p,
-      // })
-      dispatch(addPort(device.id, p))
+      if(port) {
+        dispatch(update({
+          id: port.id,
+          changes: p,
+        }))
+      } else {
+        dispatch(addPort(device.id, p))
+      }
       closeModal()
     }
     setSubmitted(true)

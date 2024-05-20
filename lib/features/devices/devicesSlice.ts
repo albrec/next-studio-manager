@@ -3,7 +3,8 @@ import { PayloadAction, createEntityAdapter, createSlice } from '@reduxjs/toolki
 import type { RootState } from '@/lib/store'
 import { Device, DevicePayload } from './deviceTypes'
 import { PortPayload } from '../ports/portTypes'
-import { addPort } from '../ports/portsSlice'
+import { addPort, remove as removePort } from '../ports/portsSlice'
+import { reHydrate } from '@/lib/middleware/localStorage'
 
 const NAMESPACE = 'devices'
 
@@ -46,12 +47,22 @@ export const devicesSlice = createSlice({
       }
     },
     remove: devicesAdapter.removeOne,
-    reducer: (state, action: PayloadAction<PortPayload & { deviceId: Device['id'] }>) => {
-    }
   },
   extraReducers: (builder) => {
+    builder.addCase(reHydrate, (state, action) => {
+      if(action.payload) {
+        return action.payload.devices
+      } else {
+        return state
+      }
+    })
     builder.addCase(addPort, (state, action) => {
       state.entities[action.payload.deviceId].portIds.push(action.payload.port.id)
+    })
+    builder.addCase(removePort, (state, action) => {
+      state.ids.forEach(id => {
+        state.entities[id].portIds = state.entities[id].portIds.filter(i => i !== action.payload)
+      })
     })
   }
 })

@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux'
 import { upsert } from '@/lib/features/devices/devicesSlice'
 import { Device } from '@/lib/features/devices/deviceTypes'
 
-export default function DeviceForm ({ device, open, onClose }: { device?: Device, open: boolean, onClose(): void }) {
+export default function DeviceForm ({ device, open, onClose, onExited }: { device?: Device, open: boolean, onClose?(): void, onExited?(): void }) {
   const [name, setName] = useState(device?.name || '')
   const [midiChannels, setMidiChannels] = useState(device?.midiChannels || [])
   // const dispatch = useDevicesDispatch()
@@ -17,7 +17,7 @@ export default function DeviceForm ({ device, open, onClose }: { device?: Device
   const alertsDispatch = useAlertsDispatch()
 
   function closeModal() {
-    onClose()
+    onClose?.()
   }
 
   function submitForm(e: FormEvent) {
@@ -27,12 +27,13 @@ export default function DeviceForm ({ device, open, onClose }: { device?: Device
       id: device?.id,
       name,
       midiChannels,
+      portIds: device?.portIds || [],
     }))
     closeModal()
   }
 
   return (
-    <Dialog open={ open } onClose={ onClose }>
+    <Dialog open={ open } onClose={ onClose } TransitionProps={{ onExited }}>
       <Box className="p-12">
         <DialogTitle className="pl-0" variant='h2'>{ !!device ? 'Update' : 'Add' } Device</DialogTitle>
         <form className="flex flex-col gap-4" onSubmit={ submitForm }>

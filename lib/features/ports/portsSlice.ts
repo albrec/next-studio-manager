@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from 'uuid'
-import { PayloadAction, combineReducers, createAction, createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { PayloadAction, combineReducers, createAction, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 import type { RootState } from '@/lib/store'
 import { Port, PortPayload } from './portTypes'
 import { Device } from '../devices/deviceTypes'
-import { devicesAdapter, getDevice, getDeviceIds, selectById as selectDeviceById } from '../devices/devicesSlice'
+import { getDevice, remove as removeDevice } from '../devices/devicesSlice'
+import { reHydrate } from '@/lib/middleware/localStorage'
 
 const NAMESPACE = 'ports'
 
@@ -27,35 +28,44 @@ export const portsSlice = createSlice({
     load: (state, action) => {
       portsAdapter.setAll(state, action.payload)
     },
-    upsert: {
-      prepare: (port: PortPayload) => {
-        return {
-          payload: {
-            ...port,
-            id: port.id || uuidv4()
-          } as Port
-        }
-      },
-      reducer: (state, action: PayloadAction<Port>) => {
-        portsAdapter.upsertOne(state, action.payload)
-      }
+    upsert: (state, action: PayloadAction<Port>) => {
+      portsAdapter.upsertOne(state, action.payload)
     },
+    update: portsAdapter.updateOne,
     remove: portsAdapter.removeOne,
     addPort: (state, action: PayloadAction<{ deviceId: Device['id'], port: Port}>) => {
       portsAdapter.addOne(state, action.payload.port)
     }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(reHydrate, (state, action) => {
+      if(action.payload) {
+        return action.payload.ports
+      } else {
+        return state
+      }
+    })
+    builder.addCase(removeDevice, (state, action) => {
+      console.log('portSlice responding to remove device')
+      Object.values(state.entities).forEach(port => {
+        if(port.deviceId === action.payload) {
+          portsAdapter.removeOne(state, port.id)
+        }
+      })
+    })
   }
 })
 export default portsSlice.reducer
 
 // Actions
-export const { load, upsert, remove } = portsSlice.actions
+export const { load, upsert, update, remove } = portsSlice.actions
 export const addPort = createAction(`${NAMESPACE}/addPort`, (deviceId: Device['id'], port: PortPayload) => {
   return {
     payload: {
       port: {
         ...port,
         id: uuidv4(),
+        deviceId,
       },
       deviceId,
     }
@@ -68,9 +78,13 @@ export const getPort = selectById
 export const getPorts = selectAll
 export const getIds = selectIds
 export const getPortCount = selectTotal
-export const getPortsByDevice = (deviceId: Device['id']) => (state: RootState) => {
-  return getDevice(state, deviceId).portIds.map(pid => selectById(state, pid))
-}
+// export const getPortsByDevice = (deviceId: Device['id']) => (state: RootState) => {
+//   return getDevice(state, deviceId).portIds.map(pid => selectById(state, pid))
+// }
+
+export const getPortsByDevice = (deviceId: Device['id']) => createSelector(getPorts, (ports: Port[]) => {
+  return ports.filter(p => p.deviceId === deviceId)
+})
 
 
 // Helpers

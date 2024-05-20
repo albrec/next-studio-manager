@@ -78,12 +78,17 @@ export const getPort = selectById
 export const getPorts = selectAll
 export const getIds = selectIds
 export const getPortCount = selectTotal
-// export const getPortsByDevice = (deviceId: Device['id']) => (state: RootState) => {
-//   return getDevice(state, deviceId).portIds.map(pid => selectById(state, pid))
-// }
 
 export const getPortsByDevice = (deviceId: Device['id']) => createSelector(getPorts, (ports: Port[]) => {
   return ports.filter(p => p.deviceId === deviceId)
+})
+
+export const getAllPortsByDevice = createSelector(getPorts, (ports: Port[]) => {
+  return ports.reduce((acc, port) => {
+    const deviceId = port.deviceId
+    acc[deviceId] = [...acc[deviceId], port]
+    return acc
+  }, {})
 })
 
 

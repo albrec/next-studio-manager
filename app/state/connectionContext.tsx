@@ -96,13 +96,6 @@ export function deriveConnectionId({ input, output }: { input: Port | string, ou
 
 const connectionValidators = {
   [PortTypes.AUDIO]: (input: Port, output: Port) => {
-    
-    
-    output.type === PortTypes.AUDIO,
-    input.io === PortDirectionality.INPUT,
-    output.io === PortDirectionality.OUTPUT
-    
-    
     return  input.type === PortTypes.AUDIO &&
     output.type === PortTypes.AUDIO &&
     input.io === PortDirectionality.INPUT && 

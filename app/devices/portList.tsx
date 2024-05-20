@@ -22,7 +22,7 @@ export default function PortList({ device }: { device: Device }) {
   return (
     <Accordion className="bg-stone-100">
       <AccordionSummary expandIcon={ <ArrowDropDown /> }>
-        <Typography className="mr-4" variant="h4">Ports</Typography>
+        <Typography className="mr-4" variant="h4">Ports ({ ports.length })</Typography>
         { ports.length > 0 ?
           <>
             { hasAudio && <VolumeUp /> }

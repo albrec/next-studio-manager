@@ -246,11 +246,6 @@ table.connection-grid {
       opacity: 1;
     }
 
-    td.connected::after {
-      background-color: blue !important;
-      opacity: 1;
-    }
-
     td.error::after {
       transition: all 1s ease-out;
       background-color: var(--table-incompatible-color) !important;

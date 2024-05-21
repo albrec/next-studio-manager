@@ -3,8 +3,9 @@ import { PayloadAction, createEntityAdapter, createSlice } from '@reduxjs/toolki
 import type { RootState } from '@/lib/store'
 import { Device, DevicePayload } from './deviceTypes'
 import { PortPayload } from '../ports/portTypes'
-import { addPort, remove as removePort } from '../ports/portsSlice'
+import { addPort, getPorts, portsAdapter, getEntities as getPortEntities, remove as removePort, sortInputOutputLists } from '../ports/portsSlice'
 import { reHydrate } from '@/lib/middleware/localStorage'
+import { PortableWifiOff } from '@mui/icons-material'
 
 const NAMESPACE = 'devices'
 
@@ -78,3 +79,14 @@ export const getDevice = selectById
 export const getDevices = selectAll
 export const getDeviceIds = selectIds
 export const getDeviceCount = selectTotal
+export const getDecoratedDevices = (state: RootState) => {
+  const devices = getDevices(state)
+  const portsEntities = getPortEntities(state)
+  return devices.map(d => {
+    const ports = d.portIds.map(id => portsEntities[id])
+    return {
+      ...d,
+      ...sortInputOutputLists(ports),
+    }
+  })
+}

@@ -6,7 +6,9 @@ import '@fontsource/roboto/700.css'
 import { CssBaseline, Typography, ThemeProvider, Box, Divider } from "@mui/material"
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 
-
+import {
+  Experimental_CssVarsProvider as CssVarsProvider,
+} from '@mui/material/styles'
 import theme from "./theme"
 import "./globals.css"
 
@@ -33,23 +35,25 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={ theme }>
             <CssBaseline />
-            <body>
-              <Alerts />
-              <header className="flex flex-col items-center">
-                <Typography className="my-4 font-thin" variant="h3">Next Studio Manager</Typography>
-                <Nav />
-                <Box className="absolute top-4 right-4">
-                  <FileControls />
-                </Box>
-              </header>
-              <main>
-                {children}
-              </main>
-              <footer className="flex justify-around bg-zinc-500 text-white mt-4 p-4">
-                <Box>Next Studio Manager™</Box>
-                <Box>© David Souza | AinaTek</Box>
-              </footer>
-            </body>
+            <CssVarsProvider>
+              <body>
+                <Alerts />
+                <header className="flex flex-col items-center">
+                  <Typography className="my-4 font-thin" variant="h3">Next Studio Manager</Typography>
+                  <Nav />
+                  <Box className="absolute top-4 right-4">
+                    <FileControls />
+                  </Box>
+                </header>
+                <main>
+                  {children}
+                </main>
+                <footer className="flex justify-around bg-zinc-500 text-white mt-4 p-4">
+                  <Box>Next Studio Manager™</Box>
+                  <Box>© David Souza | AinaTek</Box>
+                </footer>
+              </body>
+            </CssVarsProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </StoreProvider>

@@ -6,12 +6,27 @@ import { CSSProperties, ChangeEvent, DetailedHTMLProps, InputHTMLAttributes, Ref
 import { Connection, Device } from "../state/descriptions"
 import { useConnections, useConnectionsDispatch } from "../state/connectionContext"
 import { useAlertsDispatch } from "../state/alertContext"
+import { useAppDispatch, useAppSelector } from "@/lib/hooks"
+import { getDevices } from "@/lib/features/devices/devicesSlice"
+import { RootState } from "@/lib/store"
+import { reHydrate } from "@/lib/middleware/localStorage"
+
+const VERSION = 1
+const FILE_TYPE_ID = 'next-studio-manager'
+
+type NSMv1 = {
+  fileType: string,
+  version: number,
+  modifiedAt: string,
+  state: RootState,
+}
+
+type NSMcurrent = NSMv1
+
 
 export default function FileControls() {
-  const devices = useDevices()
-  const deviceDispatch = useDevicesDispatch()
-  const connections = useConnections()
-  const connectionsDispatch = useConnectionsDispatch()
+  const state = useAppSelector(state => state)
+  const dispatch = useAppDispatch()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const alertsDispatch = useAlertsDispatch()
     
@@ -37,10 +52,7 @@ export default function FileControls() {
       const writableStream = await newHandle.createWritable()
             
       // write our file
-      await writableStream.write(JSON.stringify({
-        devices,
-        connections,
-      }))
+      await writableStream.write(serializeState(state))
             
       // close the file and write the contents to disk.
       await writableStream.close()
@@ -64,25 +76,19 @@ export default function FileControls() {
       const reader = new FileReader()
       reader.onload = function(e) {
         if(!!e.target && typeof e.target.result === 'string') {
-          let data: { devices: Device[], connections: Connection[] }
           try {
-            data = JSON.parse(e.target.result)
-            deviceDispatch?.({
-              type: 'load',
-              devices: data.devices,
-            })
-            connectionsDispatch?.({
-              type: 'load',
-              connections: data.connections,
-            })
-            alertsDispatch?.({
-              type: 'add',
-              alert: {
-                severity: 'success',
-                msg: `Loaded ${data.devices.length} devices and ${data.connections.length} connections.`,
-                transient: true,
-              }
-            })
+            const data = deserializeState(e.target.result)
+            if(data) {
+              dispatch(reHydrate(data))
+            } else {
+              alertsDispatch?.({
+                type: 'add',
+                alert: {
+                  severity: 'error',
+                  msg: `Didn't recognize file ${file.name}.`,
+                }
+              })
+            }
           } catch (err) {
             console.error(err)
             alertsDispatch?.({
@@ -102,6 +108,37 @@ export default function FileControls() {
   async function openFilePicker() {
     fileInputRef.current?.click()
   }
+}
+
+function serializeState(state: RootState) {
+  const data: NSMcurrent = {
+    fileType: FILE_TYPE_ID,
+    version: VERSION,
+    modifiedAt: (new Date()).toJSON(),
+    state,
+  }
+  return JSON.stringify(data)
+}
+
+function deserializeState(raw: string) {
+  let data: NSMcurrent
+  try {
+    data = JSON.parse(raw)
+    if(data.fileType === FILE_TYPE_ID) {
+      return parsers[data.version](data)
+    } else {
+      console.error('File format not recognized.')
+    }
+  } catch(e) {
+    console.error('Failed to parse file: ', e)
+  }
+}
+
+type Parser = (data: any) => RootState
+const parsers: {[key: number]: Parser} = {
+  1: (data: NSMv1) => {
+    return data.state
+  },
 }
 
 

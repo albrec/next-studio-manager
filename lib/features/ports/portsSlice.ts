@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { PayloadAction, combineReducers, createAction, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 import type { RootState } from '@/lib/store'
-import { Port, PortPayload } from './portTypes'
+import { Port, PortDirectionality, PortPayload, PortTypes } from './portTypes'
 import { Device } from '../devices/deviceTypes'
 import { getDevice, remove as removeDevice } from '../devices/devicesSlice'
 import { reHydrate } from '@/lib/middleware/localStorage'
@@ -77,6 +77,7 @@ export const addPort = createAction(`${NAMESPACE}/addPort`, (deviceId: Device['i
 export const getPort = selectById
 export const getPorts = selectAll
 export const getIds = selectIds
+export const getEntities = selectEntities
 export const getPortCount = selectTotal
 
 export const getPortsByDevice = (deviceId: Device['id']) => createSelector(getPorts, (ports: Port[]) => {
@@ -84,9 +85,12 @@ export const getPortsByDevice = (deviceId: Device['id']) => createSelector(getPo
 })
 
 export const getAllPortsByDevice = createSelector(getPorts, (ports: Port[]) => {
-  return ports.reduce((acc, port) => {
+  return ports.reduce<{ [key: Device['id']]: Port[] }>((acc, port) => {
     const deviceId = port.deviceId
-    acc[deviceId] = [...acc[deviceId], port]
+    if(!acc[deviceId]) {
+      acc[deviceId] = []
+    }
+    acc[deviceId].push(port)
     return acc
   }, {})
 })
@@ -102,4 +106,11 @@ export function sortPorts(a: Port, b: Port) {
   const bName = bSegments?.[1] || ''
   const bNumber = parseInt(bSegments?.[2] || '')
   return a.type.localeCompare(b.type) || aName.localeCompare(bName) || aNumber - bNumber
+}
+
+export function sortInputOutputLists(ports: Port[]) {
+  return {
+    inputs: ports.filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)),
+    outputs: ports.filter(p => p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)),
+  }
 }

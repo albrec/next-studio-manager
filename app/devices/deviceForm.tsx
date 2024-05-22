@@ -10,7 +10,6 @@ import { MidiChannelNumbers } from '@/lib/features/midiChannels/midiChannelsType
 export default function DeviceForm ({ device, open, onClose, onExited }: { device?: Device, open: boolean, onClose?(): void, onExited?(): void }) {
   const [name, setName] = useState(device?.name || '')
   const [midiChannels, setMidiChannels] = useState(device?.midiChannels || [])
-  // const dispatch = useDevicesDispatch()
   const dispatch = useDispatch()
   const alertsDispatch = useAlertsDispatch()
 

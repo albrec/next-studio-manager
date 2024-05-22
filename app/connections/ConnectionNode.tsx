@@ -34,7 +34,7 @@ export default memo(function ConnectionNode({
   return (
     <td
       id={ `port-intersection-${outputId}-${inputId}` }
-      className={ classNames(`port-type-${input.type}`, `input-port-id-${inputId}`, `output-port-id-${outputId}`) }
+      className={ classNames('connection-node', `port-type-${input.type}`, `input-port-id-${inputId}`, `output-port-id-${outputId}`) }
       onClick={ toggleConnection }
       onMouseEnter={ () => setHover?.({ input: inputId, output: outputId }) }
       onMouseLeave={ () => setHover?.(null) }

@@ -3,7 +3,7 @@ import { PayloadAction, createAction, createDraftSafeSelector, createEntityAdapt
 import type { RootState } from '@/lib/store'
 import { reHydrate } from '@/lib/middleware/localStorage'
 import { AudioPortSubTypes, Port, PortDirectionality, PortTypes } from '../ports/portTypes'
-import { MidiChannel } from './midiChannelsTypes'
+import { MidiChannel, MidiChannelPayload } from './midiChannelsTypes'
 
 const NAMESPACE = 'midiChannels'
 type ConnectionsState = RootState['midiChannels']
@@ -17,13 +17,27 @@ const {
 } = midiChannelsAdapter.getSelectors()
 
 
+export const update = createAction(`${NAMESPACE}/update`, (channel: MidiChannelPayload) => {
+  return {
+    payload: {
+      ...channel,
+      id: channel.channel.toString(),
+    }
+  }
+})
+
 export const midiChannelsSlice = createSlice({
   name: NAMESPACE,
   initialState: midiChannelsAdapter.getInitialState(),
   reducers: {
-    add: midiChannelsAdapter.addOne,
-    update: midiChannelsAdapter.updateOne,
-    remove: midiChannelsAdapter.removeOne,
+    update: (state, action) => {
+      const channel = Object.values(state.entities).find(c => c.channel === action.payload.channel)
+      if(action.payload.name) {
+        midiChannelsAdapter.upsertOne(state, action.payload)
+      } else if(channel) {
+        midiChannelsAdapter.removeOne(state, channel.id)
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(reHydrate, (state, action) => {
@@ -40,19 +54,21 @@ export default midiChannelsSlice.reducer
 
 
 // Actions
-export const {
-  add,
-  update,
-  remove,
-} = midiChannelsSlice.actions
+// export const {
+//   update,
+// } = midiChannelsSlice.actions
 
 
 
 // Selectors
 export const {
   selectAll: getMidiChannels,
-  selectById: getMidiChannel,
 } = midiChannelsAdapter.getSelectors((state: RootState) => state[NAMESPACE])
+
+export const getMidiChannel = (channel: number) => (state: RootState) => {
+  const channels = getMidiChannels(state)
+  return channels.find(c => c.channel === channel)
+}
 
 
 

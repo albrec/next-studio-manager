@@ -1,10 +1,8 @@
-import { PortTypes } from "@/lib/features/ports/portTypes"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import classNames from "classnames"
-import { memo, useContext, useEffect } from "react"
-import { useSetHover } from "./ConnectionGrid"
+import { memo } from "react"
+import { useSetHover } from "./connectionGrid"
 import { toggle } from "@/lib/features/connections/connectionsSlice"
-import { useSelector } from "react-redux"
 import { getPort } from "@/lib/features/ports/portsSlice"
 
 export default memo(function ConnectionNode({ 

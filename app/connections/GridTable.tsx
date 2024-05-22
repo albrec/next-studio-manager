@@ -9,7 +9,7 @@ import ConnectionNode from "./ConnectionNode"
 import { isStereo } from "@/lib/features/ports/portsSlice"
 
 export default memo(function GridTable({ portTypes }: { portTypes: PortTypes[] }) {
-  const decoratedDevices = useAppSelector(getDecoratedDevices)
+  const decoratedDevices = useAppSelector(getDecoratedDevices(portTypes))
   const dispatch = useAppDispatch()
 
     

@@ -1,7 +1,7 @@
 "use client"
 
 import Head from "next/head"
-import { ConnectionGrid } from "./ConnectionGrid"
+import { ConnectionGrid } from "./connectionGrid"
 import { Link, Typography } from "@mui/material"
 import { useAppSelector } from "@/lib/hooks"
 import { getDeviceCount } from "@/lib/features/devices/devicesSlice"

@@ -4,6 +4,7 @@ import { memo } from "react"
 import { useSetHover } from "./connectionGrid"
 import { toggle } from "@/lib/features/connections/connectionsSlice"
 import { getPort } from "@/lib/features/ports/portsSlice"
+import { SubdirectoryArrowRight } from "@mui/icons-material"
 
 export default memo(function ConnectionNode({ 
   inputId,
@@ -37,6 +38,8 @@ export default memo(function ConnectionNode({
       onClick={ toggleConnection }
       onMouseEnter={ () => setHover?.({ input: inputId, output: outputId }) }
       onMouseLeave={ () => setHover?.(null) }
-    />
+    >
+      <SubdirectoryArrowRight />
+    </td>
   )
 })

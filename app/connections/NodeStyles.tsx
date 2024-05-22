@@ -17,6 +17,10 @@ export default function ConnectionNodeStyle({ tableSelector }: { tableSelector: 
           background-color: var(--table-header-connected) !important;
         }
 
+        ${tableSelector} tbody td#port-intersection-${c.output}-${c.input} > svg {
+          display: block;
+        }
+
         ${tableSelector} tbody td#port-intersection-${c.output}-${c.input}::after {
           background-color: var(--mui-palette-primary-main) !important;
           opacity: 1;

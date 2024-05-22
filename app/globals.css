@@ -12,7 +12,7 @@
   --background-end-rgb: 255, 255, 255;
   --zebra-rgba: 0, 0, 0, 0.08;
   --table-border-rgb: 127, 127, 127;
-  --table-hover-color: rgb(180, 190, 255);
+  --table-hover-color: rgba(180, 190, 255, .5);
   --table-compatible-color: rgb(50, 255, 40);
   --table-compatible-color-light: rgb(from var(--table-compatible-color) r g b / 0.2);
   --table-incompatible-color: rgb(255, 40, 40);
@@ -68,6 +68,20 @@ table.connection-grid {
   
   td {
     border: 1px rgb(var(--table-border-rgb)) solid;
+  }
+
+  th.device::after,
+  th.port::after,
+  tbody tr td::after {
+    content: '';
+    background-color: var(--table-hover-color);
+    position:absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0;
   }
 
   thead{
@@ -176,9 +190,9 @@ table.connection-grid {
   }
 
   tbody {
-    tr:hover th.port,
-    tr:hover td {
-      background-color: var(--table-hover-color);
+    tr:hover th.port::after,
+    tr:hover td::after {
+      opacity: 1;
     }
 
     tr.first-port,

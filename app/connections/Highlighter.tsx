@@ -22,18 +22,23 @@ export default function HighlightStyles({ hoveredConnection, tableSelector }: { 
             background-color: var(--table-incompatible-color-light);
         }
         
-        ${tableSelector} td.input-port-id-${input.id} {
-            background-color: var(--table-hover-color);
+        ${tableSelector} td.input-port-id-${input.id}::after {
+            opacity: 1;
         }
         
         ${tableSelector} td#port-intersection-${output.id}-${input.id} {
             background-color: var(${input.type === output.type ? '--table-compatible-color' : '--table-incompatible-color'}) !important;
         }
         
+        ${tableSelector} #input_port_${input.id}::after,
+        ${tableSelector} #input_device_${inputDeviceId || 'unknown_devices'}::after,
+        ${tableSelector} #output_device_${outputDeviceId || 'unknown_devices'}::after {
+            opacity: 1;
+        }
+
         ${tableSelector} #input_port_${input.id},
         ${tableSelector} #input_device_${inputDeviceId || 'unknown_devices'},
         ${tableSelector} #output_device_${outputDeviceId || 'unknown_devices'} {
-            background-color: var(--table-hover-color) !important;
             color: var(--foreground-rgb);
         }
         `

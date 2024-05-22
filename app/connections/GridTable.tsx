@@ -55,7 +55,7 @@ export default memo(function GridTable({ portTypes }: { portTypes: PortTypes[] }
             { i === 0 && 
                             <th className="device" id={ `output_device_${d.id}` } rowSpan={ d.outputs.length }>{ d.name }</th>
             }
-            <th className="port">
+            <th className="port" id={ `output_port_${p.id}` }>
               { p.name }{ isStereo(p) && '*' }
             </th>
 

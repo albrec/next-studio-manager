@@ -28,7 +28,8 @@ export default memo(function ConnectionNode({
     }))
   }
 
-  console.count('ConnectionNode')
+  // console.count('ConnectionNode')
+
   return (
     <td
       id={ `port-intersection-${outputId}-${inputId}` }

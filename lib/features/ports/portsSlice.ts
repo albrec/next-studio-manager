@@ -110,8 +110,8 @@ export function sortPorts(a: Port, b: Port) {
 
 export function sortInputOutputLists(ports: Port[]) {
   return {
-    inputs: ports.filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)),
-    outputs: ports.filter(p => p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)),
+    inputs: ports.filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)).sort(sortPorts),
+    outputs: ports.filter(p => p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)).sort(sortPorts),
   }
 }
 

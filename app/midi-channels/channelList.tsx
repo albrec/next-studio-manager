@@ -43,7 +43,8 @@ export default function ChannelList() {
           className={ classNames("w-full p-4 mb-2") }
           elevation={ 3 }
           sx={{
-            bgcolor: isAssigned ? 'primary.light' : 'text.disabled',
+            bgcolor: isAssigned ? 'primary.light' : 'grey.600',
+            color: 'primary.contrastText',
           }}
         >
           <Box className="flex items-center justify-between">

@@ -1,6 +1,6 @@
 import { Device } from "@/lib/features/devices/deviceTypes"
 import { Port, PortPayload, PortTypes } from "@/lib/features/ports/portTypes"
-import { getPortsByDevice, remove } from "@/lib/features/ports/portsSlice"
+import { getPortsByDevice, remove, sortPorts } from "@/lib/features/ports/portsSlice"
 import { Add, ArrowDropDown, ContentCopy, Delete, Edit, Piano, Usb, VolumeUp } from "@mui/icons-material"
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Card, CardActions, CardContent, Checkbox, IconButton, Typography } from "@mui/material"
 import { useDispatch, useSelector } from "react-redux"
@@ -10,7 +10,7 @@ import DeleteModal from "../components/deleteModal"
 
 export default function PortList({ device }: { device: Device }) {
   const dispatch = useDispatch()
-  const ports = useSelector(getPortsByDevice(device.id))
+  const ports = useSelector(getPortsByDevice(device.id)).sort(sortPorts)
   const [portModalOpen, setPortModalOpen] = useState(false)
   const [editPort, setEditPort] = useState<PortPayload | null>(null)
   const [portToDelete, setPortToDelete] = useState<Port | null>(null)

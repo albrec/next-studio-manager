@@ -18,6 +18,7 @@
   --table-incompatible-color: rgb(255, 40, 40);
   --table-incompatible-color-light: rgb(from var(--table-incompatible-color) r g b / 0.2);
   --table-disabled-color: rgb(180, 180, 180);
+  --table-header-connected: hsl(from var(--mui-palette-secondary-light) h s calc(l * 1.5));
   --port-weight: 400;
   --low-contract-text: rgb(128, 127, 127);
 }
@@ -33,6 +34,7 @@
     --table-border-rgb: 135, 135, 135;
     --table-hover-color: rgb(65, 68, 91);
     --table-disabled-color: rgb(120, 120, 120);
+    --table-header-connected: hsl(from var(--mui-palette-secondary-dark) h s calc(l * .5));
   }
 }
 

@@ -14,7 +14,7 @@ export default function ConnectionNodeStyle({ tableSelector }: { tableSelector: 
         
         ${tableSelector} th#input_port_${c.input},
         ${tableSelector} th#output_port_${c.output} {
-          background-color: hsl(from var(--mui-palette-secondary-dark) h s calc(l * .5)) !important;
+          background-color: var(--table-header-connected) !important;
         }
 
         ${tableSelector} tbody td#port-intersection-${c.output}-${c.input}::after {

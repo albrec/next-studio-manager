@@ -1,13 +1,11 @@
-import { v4 as uuidv4 } from 'uuid'
-import { Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react"
-import { useDevicesDispatch } from "../state/deviceContext"
-import { MidiChannelNumbers } from '../state/descriptions'
-import { Box, Button, ButtonGroup, Dialog, DialogTitle, FormControl, IconButton, InputLabel, TextField, Typography } from '@mui/material'
+import { Dispatch, FormEvent, SetStateAction, useState } from "react"
+import { Box, Button, ButtonGroup, Dialog, DialogTitle, IconButton, InputLabel, TextField } from '@mui/material'
 import { Close } from '@mui/icons-material'
 import { useAlertsDispatch } from '../state/alertContext'
 import { useDispatch } from 'react-redux'
 import { upsert } from '@/lib/features/devices/devicesSlice'
 import { Device } from '@/lib/features/devices/deviceTypes'
+import { MidiChannelNumbers } from '@/lib/features/midiChannels/midiChannelsTypes'
 
 export default function DeviceForm ({ device, open, onClose, onExited }: { device?: Device, open: boolean, onClose?(): void, onExited?(): void }) {
   const [name, setName] = useState(device?.name || '')

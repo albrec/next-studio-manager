@@ -1,11 +1,12 @@
 import { ConnectionAddress } from "@/lib/features/connections/connectionTypes"
 import { getDecoratedDevices } from "@/lib/features/devices/devicesSlice"
-import { Port, PortTypes } from "@/lib/features/ports/portTypes"
+import { AudioPortSubTypes, Port, PortConnectors, PortTypes } from "@/lib/features/ports/portTypes"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
 import { DeviceHub } from "@mui/icons-material"
 import classNames from "classnames"
 import { Dispatch, SetStateAction, memo } from "react"
 import ConnectionNode from "./ConnectionNode"
+import { isStereo } from "@/lib/features/ports/portsSlice"
 
 export default memo(function GridTable({ portTypes }: { portTypes: PortTypes[] }) {
   const decoratedDevices = useAppSelector(getDecoratedDevices)
@@ -33,7 +34,9 @@ export default memo(function GridTable({ portTypes }: { portTypes: PortTypes[] }
         <tr>
           <td colSpan={2}><DeviceHub sx={{ fontSize: 72 }} /></td>
           { inputDevices?.map(d => d.inputs.map((p, i, a) => 
-            <th className={ classNames('port', { 'first-port': i === 0, 'last-port': i === a.length - 1 }) } id={ `input_port_${p.id}` } key={ `input_port_${p.id}` }><span>{ p.name }</span></th>
+            <th className={ classNames('port', { 'first-port': i === 0, 'last-port': i === a.length - 1 }) } id={ `input_port_${p.id}` } key={ `input_port_${p.id}` }>
+              <span>{ p.name }{ isStereo(p) && '*' }</span>
+            </th>
           ))}
         </tr>
       </thead>
@@ -52,7 +55,10 @@ export default memo(function GridTable({ portTypes }: { portTypes: PortTypes[] }
             { i === 0 && 
                             <th className="device" id={ `output_device_${d.id}` } rowSpan={ d.outputs.length }>{ d.name }</th>
             }
-            <th className="port">{ p.name }</th>
+            <th className="port">
+              { p.name }{ isStereo(p) && '*' }
+            </th>
+
             { inputDevices?.map(d => d.inputs.map(input => 
               <ConnectionNode
                 inputId={ input.id }
@@ -62,6 +68,7 @@ export default memo(function GridTable({ portTypes }: { portTypes: PortTypes[] }
                 key={`connection_${p.id}_${input.id}`}
               />
             ))}
+
           </tr>
         )))}
       </tbody>

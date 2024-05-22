@@ -1,16 +1,12 @@
-import { v4 as uuidv4 } from 'uuid'
 import { FormEvent, useState } from "react"
-import { useDevicesDispatch } from "../state/deviceContext"
-import { AudioPort, AudioPortSubTypes, MidiPort, NewPort, Port, PortConnectors, PortDirectionality, PortTypes,  UsbPort } from '../state/descriptions'
-import classNames from 'classnames'
 import { Box, Button, Checkbox, Dialog, DialogTitle, FormControl, FormControlLabel, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { Close } from '@mui/icons-material'
 import { Device } from '@/lib/features/devices/deviceTypes'
 import { useDispatch } from 'react-redux'
-import { AudioPortPayload, MidiPortPayload, PortPayload, UsbPortPayload } from '@/lib/features/ports/portTypes'
-import { addPort, update, upsert } from '@/lib/features/ports/portsSlice'
+import { AudioPortPayload, AudioPortSubTypes, MidiPortPayload, Port, PortConnectors, PortDirectionality, PortPayload, PortTypes, UsbPortPayload } from '@/lib/features/ports/portTypes'
+import { addPort, update } from '@/lib/features/ports/portsSlice'
 
-export default function PortForm ({ port, device, open, onClose, onExited }: { port?: Port | null, device: Device, open: boolean, onClose?(): void, onExited?(): void }) {
+export default function PortForm ({ port, device, open, onClose, onExited }: { port?: Port | PortPayload | null, device: Device, open: boolean, onClose?(): void, onExited?(): void }) {
   const [name, setName] = useState(port?.name || '')
   const [type, setType] = useState(port?.type || '')
   const [subType, setSubType] = useState(port?.type === PortTypes.AUDIO && port?.subType ? port.subType : '')
@@ -257,7 +253,7 @@ export default function PortForm ({ port, device, open, onClose, onExited }: { p
     }
     }
     if (portIsValid(p)) {
-      if(port) {
+      if(port && port.id) {
         dispatch(update({
           id: port.id,
           changes: p,

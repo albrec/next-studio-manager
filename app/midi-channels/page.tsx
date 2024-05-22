@@ -1,11 +1,12 @@
 'use client'
 
 import { Typography } from "@mui/material"
-import { useDevices } from "../state/deviceContext"
 import ChannelList from "./channelList"
+import { useAppSelector } from "@/lib/hooks"
+import { getDevices } from "@/lib/features/devices/devicesSlice"
 
 export default function MidiChannels() {
-  const devices = useDevices()
+  const devices = useAppSelector(getDevices)
 
   return (
     <>

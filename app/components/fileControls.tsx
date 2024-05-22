@@ -1,15 +1,12 @@
 'use client'
 import { Save, UploadFile } from "@mui/icons-material"
 import { Button } from "@mui/material"
-import { useDevices, useDevicesDispatch } from "../state/deviceContext"
 import { CSSProperties, ChangeEvent, DetailedHTMLProps, InputHTMLAttributes, Ref, forwardRef, useRef } from "react"
-import { Connection, Device } from "../state/descriptions"
-import { useConnections, useConnectionsDispatch } from "../state/connectionContext"
 import { useAlertsDispatch } from "../state/alertContext"
 import { useAppDispatch, useAppSelector } from "@/lib/hooks"
-import { getDevices } from "@/lib/features/devices/devicesSlice"
 import { RootState } from "@/lib/store"
 import { reHydrate } from "@/lib/middleware/localStorage"
+import { Port } from "@/lib/features/ports/portTypes"
 
 const VERSION = 1
 const FILE_TYPE_ID = 'next-studio-manager'
@@ -127,6 +124,7 @@ function deserializeState(raw: string) {
     if(data.fileType === FILE_TYPE_ID) {
       return parsers[data.version](data)
     } else {
+      return legacyParser(JSON.parse(raw))
       console.error('File format not recognized.')
     }
   } catch(e) {
@@ -136,9 +134,79 @@ function deserializeState(raw: string) {
 
 type Parser = (data: any) => RootState
 const parsers: {[key: number]: Parser} = {
+  // NSMv1 Parser
   1: (data: NSMv1) => {
     return data.state
   },
+}
+
+type LegacyData = { 
+  devices: LegacyDevice[]
+}
+
+type LegacyDevice = {
+  id: string,
+  name: string,
+  ports: LegacyPort[]
+}
+
+type LegacyPort = { 
+  id: string,
+  name: string,
+  type: string,
+  connector: string,
+  io: string,
+  subType?: string,
+  host?: boolean,
+}
+
+function legacyParser(data: LegacyData): RootState {
+  const state: RootState = {
+    devices: {
+      entities: {},
+      ids: [],
+    },
+    ports: {
+      entities: {},
+      ids: [],
+    },
+    connections: {
+      entities: {},
+      ids: [],
+    },
+    midiChannels: {
+      entities: {},
+      ids: [],
+    }
+  }
+
+  function parseDevice({ id, name, ports }: LegacyDevice) {
+    return {
+      id,
+      name,
+      portIds: ports.map(p => p.id),
+    }
+  }
+
+  function parsePort(port: LegacyPort, device: LegacyDevice) {
+    return {
+      ...port,
+      deviceId: device.id,
+    }
+  }
+
+  data.devices.forEach(d => {
+    const device = parseDevice(d)
+    state.devices.ids.push(device.id)
+    state.devices.entities[device.id] = device
+
+    d.ports.forEach(p => {
+      const port = parsePort(p, d) as Port
+      state.ports.ids.push(port.id)
+      state.ports.entities[port.id] = port
+    })
+  })
+  return state
 }
 
 

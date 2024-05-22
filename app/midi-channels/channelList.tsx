@@ -1,12 +1,13 @@
 import { Box, Divider, IconButton, List, ListItem, Paper, Typography } from "@mui/material"
-import { MidiChannelNumbers } from "../state/descriptions"
-import { useDevices } from "../state/deviceContext"
 import classNames from "classnames"
 import { Edit } from "@mui/icons-material"
+import { getDevices } from "@/lib/features/devices/devicesSlice"
+import { useSelector } from "react-redux"
+import { MidiChannelNumbers } from "@/lib/features/midiChannels/midiChannelsTypes"
 
 
 export default function ChannelList() {
-  const devices = useDevices()
+  const devices = useSelector(getDevices)
   const assignedChannels = devices?.reduce<number[]>((acc, d) => acc.concat(d.midiChannels || []), [])
   
   return (
@@ -19,7 +20,7 @@ export default function ChannelList() {
 }
 
 function Channel({ channel, isAssigned }: { channel: number, isAssigned: boolean }) {
-  const devices = useDevices()
+  const devices = useSelector(getDevices)
   
 
   return (

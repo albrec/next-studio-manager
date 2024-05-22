@@ -19,7 +19,7 @@ const {
 const canConnect = createDraftSafeSelector([(state: ConnectionsState) => state, (state, connectionPayload: ConnectionPayload) => connectionPayload], (connectionsState, { input , output }) => {
   const connections = selectAll(connectionsState)
   const inputMax = input.type === PortTypes.AUDIO && input.subType === AudioPortSubTypes.STEREO ? 2 : 1
-  const outputMax = input.type === PortTypes.AUDIO && input.subType === AudioPortSubTypes.STEREO ? 2 : 1
+  const outputMax = output.type === PortTypes.AUDIO && output.subType === AudioPortSubTypes.STEREO ? 2 : 1
   let inputCount = 1
   let outputCount = 1
   connections.forEach(c => {
@@ -28,6 +28,8 @@ const canConnect = createDraftSafeSelector([(state: ConnectionsState) => state, 
   })
   return inputCount <= inputMax && outputCount <= outputMax
 })
+
+
 
 export const connectionsSlice = createSlice({
   name: NAMESPACE,

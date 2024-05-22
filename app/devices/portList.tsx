@@ -1,7 +1,7 @@
 import { Device } from "@/lib/features/devices/deviceTypes"
-import { Port, PortTypes } from "@/lib/features/ports/portTypes"
+import { Port, PortPayload, PortTypes } from "@/lib/features/ports/portTypes"
 import { getPortsByDevice, remove } from "@/lib/features/ports/portsSlice"
-import { Add, ArrowDropDown, Delete, Edit, Piano, Usb, VolumeUp } from "@mui/icons-material"
+import { Add, ArrowDropDown, ContentCopy, Delete, Edit, Piano, Usb, VolumeUp } from "@mui/icons-material"
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Card, CardActions, CardContent, Checkbox, IconButton, Typography } from "@mui/material"
 import { useDispatch, useSelector } from "react-redux"
 import PortForm from "./portForm"
@@ -12,7 +12,7 @@ export default function PortList({ device }: { device: Device }) {
   const dispatch = useDispatch()
   const ports = useSelector(getPortsByDevice(device.id))
   const [portModalOpen, setPortModalOpen] = useState(false)
-  const [editPort, setEditPort] = useState<Port | null>(null)
+  const [editPort, setEditPort] = useState<PortPayload | null>(null)
   const [portToDelete, setPortToDelete] = useState<Port | null>(null)
 
   const hasAudio = ports.some(p => p.type === PortTypes.AUDIO)
@@ -56,7 +56,7 @@ export default function PortList({ device }: { device: Device }) {
               <CardActions>
                 <IconButton onClick={ () => openEditPort(port) }><Edit fontSize="small" /></IconButton>
                 <IconButton onClick={ () => setPortToDelete(port) }><Delete fontSize="small" /></IconButton>
-                {/* <IconButton onClick={ () => openPortModal(duplicatePort(port)) }><ContentCopy fontSize="small" /></IconButton> */}
+                <IconButton onClick={ () => openEditPort(duplicatePort(port)) }><ContentCopy fontSize="small" /></IconButton>
               </CardActions>
             </Card>
           ))}
@@ -85,8 +85,27 @@ export default function PortList({ device }: { device: Device }) {
     }
   }
 
-  function openEditPort(port: Port) {
+  function openEditPort(port: PortPayload) {
     setEditPort(port)
     setPortModalOpen(true)
+  }
+
+  function duplicatePort(port: Port): PortPayload {
+    const newPort: PortPayload = { ...port }
+    delete newPort.id
+
+    newPort.name = newPort.name.replace(/([L|R]|\d+)$/, (m) => {
+      if(m === 'L') {
+        return 'R'
+      } else if(m === 'R') {
+        return 'L'
+      } else if(parseInt(m)) {
+        return (parseInt(m) + 1).toString()
+      } else {
+        return m
+      }
+    })
+
+    return newPort
   }
 }

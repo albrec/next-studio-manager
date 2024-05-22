@@ -7,7 +7,8 @@
     "prod": "next build && next start",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",

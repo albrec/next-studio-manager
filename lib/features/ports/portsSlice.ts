@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { PayloadAction, combineReducers, createAction, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 import type { RootState } from '@/lib/store'
-import { Port, PortDirectionality, PortPayload, PortTypes } from './portTypes'
+import { AudioPortSubTypes, Port, PortDirectionality, PortPayload, PortTypes } from './portTypes'
 import { Device } from '../devices/deviceTypes'
 import { getDevice, remove as removeDevice } from '../devices/devicesSlice'
 import { reHydrate } from '@/lib/middleware/localStorage'
@@ -113,4 +113,8 @@ export function sortInputOutputLists(ports: Port[]) {
     inputs: ports.filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)),
     outputs: ports.filter(p => p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)),
   }
+}
+
+export function isStereo(port: Port) {
+  return port.type === PortTypes.AUDIO && port.subType === AudioPortSubTypes.STEREO
 }

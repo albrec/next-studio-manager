@@ -33,9 +33,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <StoreProvider>
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-          <ThemeProvider theme={ theme }>
-            <CssBaseline />
-            <CssVarsProvider>
+          <CssVarsProvider>
+            <ThemeProvider theme={ theme }>
+              <CssBaseline />
               <body>
                 <Alerts />
                 <header className="flex flex-col items-center">
@@ -53,8 +53,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   <Box>© David Souza | AinaTek</Box>
                 </footer>
               </body>
-            </CssVarsProvider>
-          </ThemeProvider>
+            </ThemeProvider>
+          </CssVarsProvider>
         </AppRouterCacheProvider>
       </StoreProvider>
     </html>

@@ -1,15 +1,18 @@
 import { Dispatch, FormEvent, SetStateAction, useState } from "react"
-import { Box, Button, ButtonGroup, Dialog, DialogTitle, IconButton, InputLabel, TextField } from '@mui/material'
-import { Close } from '@mui/icons-material'
+import { Box, Button, ButtonGroup, Dialog, DialogContent, DialogTitle, IconButton, InputLabel, TextField, Typography } from '@mui/material'
+import { Close, Palette } from '@mui/icons-material'
 import { useAlertsDispatch } from '../state/alertContext'
 import { useDispatch } from 'react-redux'
 import { upsert } from '@/lib/features/devices/devicesSlice'
-import { Device } from '@/lib/features/devices/deviceTypes'
+import { Device, DeviceColors } from '@/lib/features/devices/deviceTypes'
 import { MidiChannelNumbers } from '@/lib/features/midiChannels/midiChannelsTypes'
+import { CirclePicker } from 'react-color'
 
 export default function DeviceForm ({ device, open, onClose, onExited }: { device?: Device, open: boolean, onClose?(): void, onExited?(): void }) {
   const [name, setName] = useState(device?.name || '')
   const [midiChannels, setMidiChannels] = useState(device?.midiChannels || [])
+  const [deviceColor, setDeviceColor] = useState(device?.color || DeviceColors[0])
+  const [pickerOpen, setPickerOpen] = useState(false)
   const dispatch = useDispatch()
   const alertsDispatch = useAlertsDispatch()
 
@@ -23,6 +26,7 @@ export default function DeviceForm ({ device, open, onClose, onExited }: { devic
     dispatch(upsert({
       id: device?.id,
       name,
+      color: deviceColor,
       midiChannels,
       portIds: device?.portIds || [],
     }))
@@ -34,14 +38,33 @@ export default function DeviceForm ({ device, open, onClose, onExited }: { devic
       <Box className="p-12">
         <DialogTitle className="pl-0" variant='h2'>{ !!device ? 'Update' : 'Add' } Device</DialogTitle>
         <form className="flex flex-col gap-4" onSubmit={ submitForm }>
-          <TextField
-            label="Name"
-            placeholder="Name of device"
-            value={ name }
-            onChange={ e => setName(e.target.value) }
-            required
-            autoFocus
-          />
+          <Box className="flex gap-4">
+            <TextField
+              className="grow"
+              label="Name"
+              placeholder="Name of device"
+              value={ name }
+              onChange={ e => setName(e.target.value) }
+              required
+              autoFocus
+            />
+            <IconButton onClick={ () => setPickerOpen(true) }><Palette fontSize="large" htmlColor={ deviceColor } /></IconButton>
+          </Box>
+          <Dialog open={ pickerOpen } onClose={() => setPickerOpen(false) }>
+            <DialogTitle><Typography variant="h3">Device Color</Typography></DialogTitle>
+            <DialogContent>
+              <CirclePicker
+                className="pt-2"
+                width="13.5rem"
+                color={ deviceColor }
+                colors={ DeviceColors }
+                onChangeComplete={ (color) => {
+                  setDeviceColor(color.hex)
+                  setPickerOpen(false)
+                }}
+              />
+            </DialogContent>
+          </Dialog>
           <MidiButtons midiChannels={ midiChannels } setMidiChannels={ setMidiChannels } />
           <Button variant="contained" size="large" onClick={ submitForm }>{ !!device ? 'Update' : 'Add' }</Button>
         </form>

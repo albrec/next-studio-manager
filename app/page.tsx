@@ -9,9 +9,8 @@ export default function Home() {
       <Head>
         <title>Welcome to your studio manager solution</title>  
       </Head>
-      <main>
-        <Typography variant="h1">Home</Typography>
-      </main>
+      
+      <Typography variant="h1">Home</Typography>
     </>
   )
 }

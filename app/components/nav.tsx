@@ -23,7 +23,7 @@ export default function Nav() {
 
       <Box className="flex flex-col items-center">
         <ButtonGroup className="flex">
-          <NavButton href="/labels">Labels</NavButton>
+          <NavButton href="/documents">Documents</NavButton>
         </ButtonGroup>
         <GroupName>Utilities</GroupName>
       </Box>

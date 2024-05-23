@@ -1,0 +1,5 @@
+@media print {
+  table {
+    width: fit-content;
+  }
+}

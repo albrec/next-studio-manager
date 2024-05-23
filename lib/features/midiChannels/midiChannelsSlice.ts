@@ -63,6 +63,7 @@ export default midiChannelsSlice.reducer
 // Selectors
 export const {
   selectAll: getMidiChannels,
+  selectEntities: getMidiChannelMap,
 } = midiChannelsAdapter.getSelectors((state: RootState) => state[NAMESPACE])
 
 export const getMidiChannel = (channel: number) => (state: RootState) => {

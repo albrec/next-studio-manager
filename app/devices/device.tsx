@@ -17,6 +17,8 @@ export default function DeviceComponent ({ device }: { device: Device }) {
   const [editDevice, setEditDevice] = useState<Device | null>(null)
   const [portModalOpen, setPortModalOpen] = useState<boolean | 'closing'>(false)
   const [deviceDeleteCheck, setDeviceDeleteCheck] = useState(false)
+  const bgcolor = device.color || '#ccc'
+  const color = `hsl(from ${bgcolor} h 0 calc((l - .6) * -100))`
 
 
   function deleteDevice() {
@@ -34,7 +36,7 @@ export default function DeviceComponent ({ device }: { device: Device }) {
 
   return (
     <section>
-      <Paper className="p-8 mb-8" elevation={ 3 }>
+      <Paper sx={{ bgcolor, color }} className="p-8 mb-8" elevation={ 3 }>
 
         
         { deviceDeleteCheck && <DeleteModal name={ device.name } open={ deviceDeleteCheck } onDelete={ deleteDevice } onClose={ setDeviceDeleteCheck } /> }
@@ -53,9 +55,9 @@ export default function DeviceComponent ({ device }: { device: Device }) {
             )}
           </Box>
           <ButtonGroup className="justify-self-end">
-            <Button onClick={ () => { openEditDevice(device) } }><Edit /></Button>
-            <Button onClick={ () => setDeviceDeleteCheck(true) }><Delete /></Button>
-            <Button onClick={ () => setPortModalOpen(true) }>Add Port <Add /></Button>
+            <Button variant="contained" onClick={ () => { openEditDevice(device) } }><Edit /></Button>
+            <Button variant="contained" onClick={ () => setDeviceDeleteCheck(true) }><Delete /></Button>
+            <Button variant="contained" onClick={ () => setPortModalOpen(true) }>Add Port <Add /></Button>
           </ButtonGroup>
             
         </Box>

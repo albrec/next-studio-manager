@@ -9,6 +9,8 @@ import { ConnectionAddress } from "@/lib/features/connections/connectionTypes"
 import HighlightStyles from "./Highlighter"
 import NodeStyles from "./NodeStyles"
 
+import "./connectionGrid.css"
+
 
 const tableSelector = 'table.connection-grid'
 

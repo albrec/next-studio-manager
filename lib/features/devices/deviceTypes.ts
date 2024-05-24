@@ -15,6 +15,11 @@ export interface Device extends DevicePayload {
   id: DeviceId,
 }
 
+export interface DeviceDecorated extends Device {
+  inputs: Port[],
+  outputs: Port[],
+}
+
 export type Devices = Device[]
 
 export const DeviceColors = COLORS

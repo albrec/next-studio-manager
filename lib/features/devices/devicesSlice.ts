@@ -1,11 +1,12 @@
 import { v4 as uuidv4 } from 'uuid'
 import { PayloadAction, createEntityAdapter, createSlice } from '@reduxjs/toolkit'
 import type { RootState } from '@/lib/store'
-import { Device, DevicePayload } from './deviceTypes'
-import { PortPayload, PortTypes } from '../ports/portTypes'
+import { Device, DeviceDecorated, DevicePayload } from './deviceTypes'
+import { Port, PortPayload, PortTypes } from '../ports/portTypes'
 import { addPort, getPorts, portsAdapter, getEntities as getPortEntities, remove as removePort, sortInputOutputLists } from '../ports/portsSlice'
 import { reHydrate } from '@/lib/middleware/localStorage'
 import { PortableWifiOff } from '@mui/icons-material'
+import { getConnections } from '../connections/connectionsSlice'
 
 const NAMESPACE = 'devices'
 
@@ -79,14 +80,34 @@ export const getDevice = selectById
 export const getDevices = selectAll
 export const getDeviceIds = selectIds
 export const getDeviceCount = selectTotal
-export const getDecoratedDevices = (portFilters: PortTypes[]) => (state: RootState) => {
+export const getDecoratedDevices = (portFilters?: PortTypes | PortTypes[]) => (state: RootState): DeviceDecorated[] => {
   const devices = getDevices(state)
   const portsEntities = getPortEntities(state)
   return devices.map(d => {
-    const ports = d.portIds.map(id => portsEntities[id]).filter(p => portFilters.includes(p.type))
+    let ports = d.portIds.map(id => portsEntities[id])
+    if(portFilters) {
+      const filters = Array.isArray(portFilters) ? portFilters : [portFilters]
+      ports = ports.filter(p => filters.includes(p.type))  
+    }
     return {
       ...d,
       ...sortInputOutputLists(ports),
     }
-  })
+  }).filter(d => d.inputs.length || d.outputs.length)
+}
+
+export const getDeviceByPortId = (portId: Port['id']) => (state: RootState) => {
+  return getDevices(state).find(d => d.portIds.includes(portId))
+}
+
+export const getConnectedDevices = (device: Device) => (state: RootState) => {
+  const connections = getConnections(state)
+  const inputDevices = connections.filter(c => device.portIds.includes(c.input)).map(c => getDeviceByPortId(c.output)(state))
+  const outputConnections = connections.filter(c => device.portIds.includes(c.output)).map(c => getDeviceByPortId(c.input)(state))
+
+  return {
+    ...device,
+    inputDevices,
+    outputConnections,
+  }
 }

@@ -5,6 +5,7 @@ import { AudioPortSubTypes, Port, PortDirectionality, PortPayload, PortTypes } f
 import { Device } from '../devices/deviceTypes'
 import { getDevice, remove as removeDevice } from '../devices/devicesSlice'
 import { reHydrate } from '@/lib/middleware/localStorage'
+import { getConnections } from '../connections/connectionsSlice'
 
 const NAMESPACE = 'ports'
 
@@ -94,6 +95,19 @@ export const getAllPortsByDevice = createSelector(getPorts, (ports: Port[]) => {
     return acc
   }, {})
 })
+
+export const getConnectedPorts = (portIds: Port['id'][]) => (state: RootState) => {
+  return portIds.map(p => getConnectedPort(p)(state))
+}
+
+export const getConnectedPort = (portId: Port['id']) => (state: RootState) => {
+  const connection = getConnections(state).find(c => c.input === portId || c.output === portId)
+  if(connection) {
+    const otherPortId = connection.input === portId ? connection.output : connection.input
+    return getPort(state, otherPortId)
+  }
+}
+
 
 
 // Helpers

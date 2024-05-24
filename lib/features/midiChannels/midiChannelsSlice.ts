@@ -71,6 +71,11 @@ export const getMidiChannel = (channel: number) => (state: RootState) => {
   return channels.find(c => c.channel === channel)
 }
 
+export const getMidiChannelsById = (channelIds: number[]) => (state: RootState) => {
+  const channels = getMidiChannels(state)
+  return channels.filter(c => channelIds.includes(c.channel))
+}
+
 
 
 // Helpers

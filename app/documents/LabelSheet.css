@@ -1,0 +1,35 @@
+@media print {
+  @page  avery-5160{
+    size: letter portrait;
+    margin: 0.42in 0.22in 0.42in 0.22in ;
+  }
+
+  .label-sheet {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    box-sizing: border-box;
+    page-break-inside: avoid;
+    width: 100%;
+    height: 100%;
+  
+    .label {
+      box-sizing: border-box;
+      overflow: hidden;
+      box-shadow: none;
+      border: 1px solid black;
+    }
+  }
+  
+  .label-sheet[data-label-type="AVERY-5160"] {
+    page: avery-5160;
+    justify-content: space-between;
+  
+    .label {
+      width: 2.625in;
+      height: 1in;
+      font-size: 10pt;
+    }
+  }
+}
+

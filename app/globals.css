@@ -45,9 +45,19 @@
 }
 
 @media print {
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+
   header,
   footer {
     display: none !important;
+  }
+
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }
 

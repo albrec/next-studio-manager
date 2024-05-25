@@ -16,9 +16,8 @@ export default function MIDIChart() {
 
       <Typography variant="h1" gutterBottom>MIDI Charts</Typography>
 
-      <Box>
+      <Box className="print-pages">
 
-        
         <ChannelChart />
         <MidiLabels />
 

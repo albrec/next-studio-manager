@@ -1,8 +1,9 @@
 @media print {
+  body > main > :not(.print-pages) {
+    display: none;
+  }
 
-  .MuiCard-root {
-    page-break-before: always;
-    page-break-after: always;
+  .print-page {
     page-break-inside: avoid;
   }
 
@@ -12,7 +13,9 @@
   }
 
   .device-label {
-    width: fit-content;
+    box-sizing: border-box;
+    width: 2.625in;
+    height: 1in;
     padding: 4pt;
     font-size: 10pt;
   }

@@ -20,7 +20,7 @@ export default function ChannelChart() {
     }
   })
 
-  return <Card className="max-w-fit channel-chart" elevation={4}>
+  return <Card className="max-w-fit channel-chart print-page" elevation={4}>
     <CardContent>
       <Typography variant="h2">Channel Assignments</Typography>
       <Table size="small">

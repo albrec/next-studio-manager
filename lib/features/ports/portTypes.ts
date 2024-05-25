@@ -43,6 +43,15 @@ export interface UsbPort extends UsbPortPayload {
 export type Port = AudioPort | MidiPort | UsbPort
 export type PortPayload = AudioPortPayload | MidiPortPayload | UsbPortPayload
 
+export interface DecoratedPortBase {
+  connectedPort?: Port,
+  connectedDevice?: Device,
+}
+export type DecoratedAudioPort = AudioPort & DecoratedPortBase
+export type DecoratedMidiPort = MidiPort & DecoratedPortBase
+export type DecoratedUsbPort = UsbPort & DecoratedPortBase
+export type DecoratedPort = DecoratedAudioPort | DecoratedMidiPort | DecoratedUsbPort
+
 
 
 // Enums and property types

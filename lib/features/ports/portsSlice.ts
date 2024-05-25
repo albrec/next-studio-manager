@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'
 import { PayloadAction, combineReducers, createAction, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 import type { RootState } from '@/lib/store'
-import { AudioPortSubTypes, Port, PortDirectionality, PortPayload, PortTypes } from './portTypes'
+import { AudioPortSubTypes, DecoratedPort, Port, PortDirectionality, PortPayload, PortTypes } from './portTypes'
 import { Device } from '../devices/deviceTypes'
-import { getDevice, remove as removeDevice } from '../devices/devicesSlice'
+import { getDevice, getDeviceByPortId, remove as removeDevice } from '../devices/devicesSlice'
 import { reHydrate } from '@/lib/middleware/localStorage'
 import { getConnections } from '../connections/connectionsSlice'
 
@@ -108,6 +108,21 @@ export const getConnectedPort = (portId: Port['id']) => (state: RootState) => {
   }
 }
 
+export const getDecoratedPort = (portId: Port['id']) => (state: RootState): DecoratedPort => {
+  const port = getPort(state, portId)
+  const connectedPort = getConnectedPort(portId)(state)
+  let connectedDevice
+  if(connectedPort) {
+    connectedDevice = getDeviceByPortId(connectedPort.id)(state)
+  }
+  
+  return {
+    ...port,
+    connectedPort,
+    connectedDevice,
+  }
+}
+
 
 
 // Helpers
@@ -122,7 +137,7 @@ export function sortPorts(a: Port, b: Port) {
   return a.type.localeCompare(b.type) || aName.localeCompare(bName) || aNumber - bNumber
 }
 
-export function sortInputOutputLists(ports: Port[]) {
+export function sortInputOutputLists<P extends Port>(ports: P[]): { inputs: P[], outputs: P[] } {
   return {
     inputs: ports.filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)).sort(sortPorts),
     outputs: ports.filter(p => p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)).sort(sortPorts),

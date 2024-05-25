@@ -2,8 +2,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { PayloadAction, createEntityAdapter, createSlice } from '@reduxjs/toolkit'
 import type { RootState } from '@/lib/store'
 import { Device, DeviceDecorated, DevicePayload } from './deviceTypes'
-import { Port, PortPayload, PortTypes } from '../ports/portTypes'
-import { addPort, getPorts, portsAdapter, getEntities as getPortEntities, remove as removePort, sortInputOutputLists } from '../ports/portsSlice'
+import { DecoratedPort, Port, PortPayload, PortTypes } from '../ports/portTypes'
+import { addPort, getPorts, portsAdapter, getEntities as getPortEntities, remove as removePort, sortInputOutputLists, getDecoratedPort } from '../ports/portsSlice'
 import { reHydrate } from '@/lib/middleware/localStorage'
 import { PortableWifiOff } from '@mui/icons-material'
 import { getConnections } from '../connections/connectionsSlice'
@@ -96,6 +96,14 @@ export const getDecoratedDevices = (portFilters?: PortTypes | PortTypes[]) => (s
   }).filter(d => d.inputs.length || d.outputs.length)
 }
 
+export const getDecoratedDevice = (device: Device) => (state: RootState) => {
+  const decoratedPorts: DecoratedPort[] = device.portIds.map(pid => getDecoratedPort(pid)(state))
+  return {
+    ...device,
+    ...sortInputOutputLists(decoratedPorts)
+  }
+}
+
 export const getDeviceByPortId = (portId: Port['id']) => (state: RootState) => {
   return getDevices(state).find(d => d.portIds.includes(portId))
 }
@@ -103,11 +111,11 @@ export const getDeviceByPortId = (portId: Port['id']) => (state: RootState) => {
 export const getConnectedDevices = (device: Device) => (state: RootState) => {
   const connections = getConnections(state)
   const inputDevices = connections.filter(c => device.portIds.includes(c.input)).map(c => getDeviceByPortId(c.output)(state))
-  const outputConnections = connections.filter(c => device.portIds.includes(c.output)).map(c => getDeviceByPortId(c.input)(state))
+  const outputDevices = connections.filter(c => device.portIds.includes(c.output)).map(c => getDeviceByPortId(c.input)(state))
 
   return {
     ...device,
     inputDevices,
-    outputConnections,
+    outputDevices,
   }
 }

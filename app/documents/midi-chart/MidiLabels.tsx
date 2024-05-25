@@ -1,30 +1,35 @@
 import { DeviceDecorated } from "@/lib/features/devices/deviceTypes"
-import { getConnectedDevices, getDecoratedDevices } from "@/lib/features/devices/devicesSlice"
+import { getConnectedDevices, getDecoratedDevice, getDecoratedDevices } from "@/lib/features/devices/devicesSlice"
 import { getMidiChannelMap, getMidiChannelsById } from "@/lib/features/midiChannels/midiChannelsSlice"
 import { PortTypes } from "@/lib/features/ports/portTypes"
-import { getConnectedPort, getConnectedPorts } from "@/lib/features/ports/portsSlice"
+import { getConnectedPort, getConnectedPorts, getDecoratedPort } from "@/lib/features/ports/portsSlice"
 import { useAppSelector } from "@/lib/hooks"
 import { Box, Card, CardContent, Typography } from "@mui/material"
+import LabelSheet, { LabelTypes } from "../LabelSheet"
 
 export function MidiLabels() {
   const devices = useAppSelector(getDecoratedDevices(PortTypes.MIDI))
 
   return (
-    <Card>
-      <CardContent>
-        <Typography>MIDI Labels</Typography>
+    <Box>
+      {/* <Typography>MIDI Labels</Typography> */}
 
-        { devices.map(d => 
-          <Box className="device-label" key={ d.id }>
-            <small>{ d.name }</small>
-            <Channels device={ d } />
-            <Ports device={ d } />
-          </Box>
-        )}
-      </CardContent>
-    </Card>
+      <LabelSheet type={ LabelTypes.Avery5160 } labels={ devices.map(d => <MidiLabel device={ d } key={ d.id } />) } />
+    </Box>
   )
 }
+
+
+function MidiLabel({ device }: { device: DeviceDecorated }) {
+  return (
+    <>
+      <small>{ device.name }</small>
+      <Channels device={ device } />
+      <Ports device={ device } />
+    </>
+  )
+}
+
 
 function Channels({ device }: { device: DeviceDecorated}) {
   const midiChannels = useAppSelector(getMidiChannelMap)
@@ -45,11 +50,14 @@ function Channels({ device }: { device: DeviceDecorated}) {
 
 
 function Ports({ device }: { device: DeviceDecorated}) {
-  const connectedDevices = useAppSelector(getConnectedDevices(device))
+  const decoratedDevice = useAppSelector(getDecoratedDevice(device))
+  const inputDevices = decoratedDevice.inputs.filter(p => p.type === PortTypes.MIDI && p.connectedDevice).map(p => p.connectedDevice)
+  const outputDevices = decoratedDevice.outputs.filter(p => p.type === PortTypes.MIDI && p.connectedDevice).map(p => p.connectedDevice)
+
   return (
     <div>
-      <div>Inputs: { connectedDevices.inputDevices.map(d => d?.name).join(', ') }</div>
-      <div>Outputs: { connectedDevices.inputDevices.map(d => d?.name).join(', ') }</div>
+      { !!inputDevices.length && <span>Inputs: <strong>{ inputDevices.map(d => d?.name).join(', ') }</strong></span> }
+      { !!outputDevices.length && <span> | Outputs: <strong>{ outputDevices.map(d => d?.name).join(', ') }</strong></span> }
     </div>
   )
 }

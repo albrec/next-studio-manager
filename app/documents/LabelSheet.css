@@ -1,4 +1,4 @@
-@media print {
+/* @media print { */
   @page  avery-5160{
     size: letter portrait;
     margin: 0.42in 0.22in 0.42in 0.22in ;
@@ -31,5 +31,5 @@
       font-size: 10pt;
     }
   }
-}
+/* } */
 

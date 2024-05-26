@@ -6,8 +6,9 @@ import { useDispatch } from 'react-redux'
 import { upsert } from '@/lib/features/devices/devicesSlice'
 import { Device, DeviceColors } from '@/lib/features/devices/deviceTypes'
 import { MidiChannelNumbers } from '@/lib/features/midiChannels/midiChannelsTypes'
-import { CirclePicker } from 'react-color'
+import { ChromePicker, CirclePicker, PhotoshopPicker } from 'react-color'
 import Chrome from "react-color/lib/components/chrome/Chrome"
+import Sketch from "react-color/lib/components/sketch/Sketch"
 
 export default function DeviceForm ({ device, open, onClose, onExited }: { device?: Device, open: boolean, onClose?(): void, onExited?(): void }) {
   const [name, setName] = useState(device?.name || '')
@@ -87,6 +88,7 @@ export default function DeviceForm ({ device, open, onClose, onExited }: { devic
 
 function LabelColor({ color, setLabelColor }: { color?: string, setLabelColor: Dispatch<SetStateAction<string>> }) {
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [pickerColor, setPickerColor] = useState(color)
 
   return (
     <Box className="flex items-center gap-2">
@@ -96,14 +98,21 @@ function LabelColor({ color, setLabelColor }: { color?: string, setLabelColor: D
       <Dialog open={ pickerOpen } onClose={() => setPickerOpen(false) }>
         <DialogTitle><Typography variant="h5">Device Label Color</Typography></DialogTitle>
         <DialogContent>
-          <Chrome
+          <ChromePicker
             className="pt-2"
-            color={ color }
-            onChangeComplete={ (color) => {
-              setLabelColor(color.hex)
-              setPickerOpen(false)
-            }}
+            color={ pickerColor }
+            onChangeComplete={ (color) => setPickerColor(color.hex)}
           />
+
+          <Box className="flex justify-end gap-2">
+            <Button onClick={ () => setPickerOpen(false) }>Cancel</Button>
+            <Button onClick={ () => {
+              if(pickerColor) {
+                setLabelColor(pickerColor)
+              }
+              setPickerOpen(false)
+            }}>Ok</Button>
+          </Box>
         </DialogContent>
       </Dialog>
     </Box>

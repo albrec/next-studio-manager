@@ -20,7 +20,7 @@ export default function LabelSheet({ labels, type = DefaultLabelType, noLabelMar
 
 function Label({ labelContent, noLabelMargin }: { labelContent: React.ReactElement, noLabelMargin: boolean }) {
   const labelColor: string = labelContent.props.labelColor || 'white'
-  const textColor: string = `hsl(from ${labelColor} h 0 calc((l - .6) * -100))`
+  const textColor: string = `hsl(from ${labelColor} h 0 calc((l - 60) * -100))`
   const labelOverrides = {
     padding: noLabelMargin ? 0 : '.1in .16in .16in',
   }

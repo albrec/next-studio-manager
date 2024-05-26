@@ -9,7 +9,7 @@ export default function ChannelChart() {
   const channelMap = useAppSelector(getMidiChannelMap)
   const channels = MidiChannelNumbers.map(cn => {
     const bgColor = channelMap[cn]?.color || 'var(--background-color)'
-    const textColor = `hsl(from ${bgColor} h 0 calc((l - .6) * -100))`
+    const textColor = `hsl(from ${bgColor} h 0 calc((l - 60) * -100))`
     const channelDevices = devices.filter(d => d.midiChannels?.includes(cn)).map(d => d.name)
     return {
       ...channelMap[cn],

@@ -18,7 +18,7 @@ export default function DeviceComponent ({ device }: { device: Device }) {
   const [portModalOpen, setPortModalOpen] = useState<boolean | 'closing'>(false)
   const [deviceDeleteCheck, setDeviceDeleteCheck] = useState(false)
   const bgcolor = device.color || '#ccc'
-  const color = `hsl(from ${bgcolor} h 0 calc((l - .6) * -100))`
+  const color = `hsl(from ${bgcolor} h 0 calc((l - 60) * -100))`
 
 
   function deleteDevice() {

@@ -37,7 +37,7 @@ export default function ChannelList() {
   function Channel({ channelNumber, isAssigned }: { channelNumber: number, isAssigned: boolean }) {
     const channel = useAppSelector(getMidiChannel(channelNumber))
     const channelColor = channel?.color ? channel.color : isAssigned ? '#ccc' : '#666'
-    const textColor = `hsl(from ${channelColor} h 0 calc((l - .6) * -100))`
+    const textColor = `hsl(from ${channelColor} h 0 calc((l - 60) * -100))`
 
     return (
       <ListItem>

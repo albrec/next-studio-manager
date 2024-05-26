@@ -14,7 +14,7 @@ export default function MidiLabelSetup() {
 
   return (
     <>
-      <Card>
+      <Card className="mb-4">
         <CardContent>
           <Typography variant="h3" gutterBottom>MIDI Setup</Typography>
 

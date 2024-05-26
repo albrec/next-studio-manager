@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import { PayloadAction, createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { PayloadAction, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 import type { RootState } from '@/lib/store'
 import { Device, DeviceDecorated, DevicePayload } from './deviceTypes'
 import { DecoratedPort, Port, PortPayload, PortTypes } from '../ports/portTypes'
@@ -76,13 +76,21 @@ export const { load, upsert, remove } = devicesSlice.actions
 
 
 // Selectors
+export const {
+  selectAll: getDevicesLocal,
+  selectById: getDeviceLocal,
+} = devicesAdapter.getSelectors()
 export const getDevice = selectById
 export const getDevices = selectAll
 export const getDeviceIds = selectIds
 export const getDeviceCount = selectTotal
-export const getDecoratedDevices = (portFilters?: PortTypes | PortTypes[]) => (state: RootState): DeviceDecorated[] => {
-  const devices = getDevices(state)
-  const portsEntities = getPortEntities(state)
+
+export const getDecoratedDevices = (portFilters?: PortTypes | PortTypes[]) => createSelector([
+  (state: RootState) => state.devices,
+  (state: RootState) => state.ports
+], (devicesState, portsState) => {
+  const devices = getDevicesLocal(devicesState)
+  const portsEntities = portsState.entities
   return devices.map(d => {
     let ports = d.portIds.map(id => portsEntities[id])
     if(portFilters) {
@@ -94,15 +102,37 @@ export const getDecoratedDevices = (portFilters?: PortTypes | PortTypes[]) => (s
       ...sortInputOutputLists(ports),
     }
   }).filter(d => d.inputs.length || d.outputs.length)
-}
+})
 
-export const getDecoratedDevice = (device: Device) => (state: RootState) => {
-  const decoratedPorts: DecoratedPort[] = device.portIds.map(pid => getDecoratedPort(pid)(state))
+export const getDecoratedDevice = (device: Device) => createSelector([
+  (state: RootState) => state.devices,
+  (state: RootState) => state.ports,
+  (state: RootState) => state.connections,
+], (devicesState, portsState, connectionsState) => {
+  const connections = Object.values(connectionsState.entities)
+  const ports: DecoratedPort[] = device.portIds.map(pid => {
+    const port = portsState.entities[pid]
+    const connection = connections.find(c => c.input === pid || c.output === pid)
+    let connectedPort, connectedDevice
+    if(connection) {
+      const connectedPortId = connection.input === pid ? connection.output : connection.input
+      connectedPort = portsState.entities[connectedPortId]
+      connectedDevice = devicesState.entities[connectedPort.deviceId]
+    }
+
+    return {
+      ...port,
+      connectedPort,
+      connectedDevice,
+    }
+  })
+
   return {
     ...device,
-    ...sortInputOutputLists(decoratedPorts)
+    ...sortInputOutputLists(ports, { bidirectionalNormalized: false }),
   }
-}
+})
+
 
 export const getDeviceByPortId = (portId: Port['id']) => (state: RootState) => {
   return getDevices(state).find(d => d.portIds.includes(portId))

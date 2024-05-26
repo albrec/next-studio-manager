@@ -75,6 +75,10 @@ export const addPort = createAction(`${NAMESPACE}/addPort`, (deviceId: Device['i
 
 
 // Selectors
+export const {
+  selectAll: getPortsLocal,
+  selectById: getPortLocal,
+} = portsAdapter.getSelectors()
 export const getPort = selectById
 export const getPorts = selectAll
 export const getIds = selectIds
@@ -137,10 +141,26 @@ export function sortPorts(a: Port, b: Port) {
   return a.type.localeCompare(b.type) || aName.localeCompare(bName) || aNumber - bNumber
 }
 
-export function sortInputOutputLists<P extends Port>(ports: P[]): { inputs: P[], outputs: P[] } {
+export function sortInputOutputLists<P extends Port>(ports: P[], { bidirectionalNormalized = true } = {}): { inputs: P[], outputs: P[] } {
+  const isInput = (p: P) => {
+    if(bidirectionalNormalized) {
+      return p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)
+    } else {
+      return p.io === PortDirectionality.INPUT || p.io === PortDirectionality.BIDIRECTIONAL
+    }
+  }
+
+  const isOutput = (p: P) => {
+    if(bidirectionalNormalized) {
+      return p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)
+    } else {
+      return p.io === PortDirectionality.OUTPUT || p.io === PortDirectionality.BIDIRECTIONAL
+    }
+  }
+
   return {
-    inputs: ports.filter(p => p.io === PortDirectionality.INPUT || (p.type === PortTypes.USB && p.host)).sort(sortPorts),
-    outputs: ports.filter(p => p.io === PortDirectionality.OUTPUT || (p.type === PortTypes.USB && !p.host)).sort(sortPorts),
+    inputs: ports.filter(isInput).sort(sortPorts),
+    outputs: ports.filter(isOutput).sort(sortPorts),
   }
 }
 

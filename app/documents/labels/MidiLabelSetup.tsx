@@ -1,21 +1,39 @@
 import { DeviceDecorated } from "@/lib/features/devices/deviceTypes"
-import { getConnectedDevices, getDecoratedDevice, getDecoratedDevices } from "@/lib/features/devices/devicesSlice"
-import { getMidiChannelMap, getMidiChannelsById } from "@/lib/features/midiChannels/midiChannelsSlice"
+import { getDecoratedDevice, getDecoratedDevices } from "@/lib/features/devices/devicesSlice"
+import { getMidiChannelMap } from "@/lib/features/midiChannels/midiChannelsSlice"
 import { PortTypes } from "@/lib/features/ports/portTypes"
-import { getConnectedPort, getConnectedPorts, getDecoratedPort } from "@/lib/features/ports/portsSlice"
 import { useAppSelector } from "@/lib/hooks"
-import { Box, Card, CardContent, Typography } from "@mui/material"
-import LabelSheet, { LabelTypes } from "../LabelSheet"
+import { Card, CardContent, FormControl, InputLabel, MenuItem, Paper, Select, Typography } from "@mui/material"
+import { DefaultLabelType, LabelTypes } from "../LabelSheet"
+import { useState } from "react"
+import { MidiLabels } from "./MidiLabels"
 
-export function MidiLabels() {
+export default function MidiLabelSetup() {
   const devices = useAppSelector(getDecoratedDevices(PortTypes.MIDI))
+  const [labelType, setLabelType] = useState(DefaultLabelType)
 
   return (
-    <Box>
-      {/* <Typography>MIDI Labels</Typography> */}
+    <>
+      <Card>
+        <CardContent>
+          <Typography variant="h3" gutterBottom>MIDI Setup</Typography>
 
-      <LabelSheet type={ LabelTypes.Avery5160 } labels={ devices.map(d => <MidiLabel device={ d } key={ d.id } />) } />
-    </Box>
+          <FormControl>
+            <InputLabel>Label Type</InputLabel>
+            <Select
+              label="Label Type"
+              value={ labelType }
+            >
+              { Object.values(LabelTypes).map(label =>
+                <MenuItem value={ label } key={ label }>{ label }</MenuItem>
+              )}
+            </Select>
+          </FormControl>
+        </CardContent>
+      </Card>
+
+      <MidiLabels type={ labelType } />
+    </>
   )
 }
 

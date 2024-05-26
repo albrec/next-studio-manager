@@ -1,0 +1,11 @@
+@media print {
+  body > main > :not(.label-sheet) {
+    display: none;
+  }
+}
+
+@media screen {
+  .label-sheet {
+    display: none;
+  }
+}

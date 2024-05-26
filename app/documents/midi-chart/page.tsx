@@ -2,7 +2,6 @@
 import { Box, Typography } from "@mui/material"
 import Head from "next/head"
 import "./print.css"
-import { MidiLabels } from "./MidiLabels"
 import ChannelChart from "./ChannelChart"
 
 export default function MIDIChart() {
@@ -19,8 +18,6 @@ export default function MIDIChart() {
       <Box className="print-pages">
 
         <ChannelChart />
-        <MidiLabels />
-
       </Box>
 
     </>

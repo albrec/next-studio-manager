@@ -3,7 +3,7 @@ import { Save, UploadFile } from "@mui/icons-material"
 import { Button } from "@mui/material"
 import { CSSProperties, ChangeEvent, DetailedHTMLProps, InputHTMLAttributes, Ref, forwardRef, useRef } from "react"
 import { useAlertsDispatch } from "../state/alertContext"
-import { useAppDispatch, useAppSelector } from "@/lib/hooks"
+import { useAppDispatch, useAppSelector, useAppStore } from "@/lib/hooks"
 import { RootState } from "@/lib/store"
 import { reHydrate } from "@/lib/middleware/localStorage"
 import { Port } from "@/lib/features/ports/portTypes"
@@ -22,7 +22,7 @@ type NSMcurrent = NSMv1
 
 
 export default function FileControls() {
-  const state = useAppSelector(state => state)
+  const store = useAppStore()
   const dispatch = useAppDispatch()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const alertsDispatch = useAlertsDispatch()
@@ -41,6 +41,7 @@ export default function FileControls() {
   )
     
   async function saveFile() {
+    const state = store.getState()
     try {
       // create a new handle
       const newHandle = await window.showSaveFilePicker()

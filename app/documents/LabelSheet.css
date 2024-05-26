@@ -21,7 +21,7 @@
     }
   }
   
-  .label-sheet[data-label-type="AVERY-5160"] {
+  .label-sheet[data-label-type="Avery-5160"] {
     page: avery-5160;
     justify-content: space-between;
   

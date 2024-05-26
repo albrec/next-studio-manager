@@ -7,6 +7,7 @@ export interface DevicePayload {
   id?: DeviceId,
   name: string,
   color?: string,
+  labelColor?: string,
   midiChannels?: number[],
   portIds: Port['id'][],
 }

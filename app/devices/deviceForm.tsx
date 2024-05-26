@@ -7,12 +7,14 @@ import { upsert } from '@/lib/features/devices/devicesSlice'
 import { Device, DeviceColors } from '@/lib/features/devices/deviceTypes'
 import { MidiChannelNumbers } from '@/lib/features/midiChannels/midiChannelsTypes'
 import { CirclePicker } from 'react-color'
+import Chrome from "react-color/lib/components/chrome/Chrome"
 
 export default function DeviceForm ({ device, open, onClose, onExited }: { device?: Device, open: boolean, onClose?(): void, onExited?(): void }) {
   const [name, setName] = useState(device?.name || '')
   const [midiChannels, setMidiChannels] = useState(device?.midiChannels || [])
   const [deviceColor, setDeviceColor] = useState(device?.color || DeviceColors[0])
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [labelColor, setLabelColor] = useState(device?.labelColor || '#fff')
   const dispatch = useDispatch()
   const alertsDispatch = useAlertsDispatch()
 
@@ -27,6 +29,7 @@ export default function DeviceForm ({ device, open, onClose, onExited }: { devic
       id: device?.id,
       name,
       color: deviceColor,
+      labelColor,
       midiChannels,
       portIds: device?.portIds || [],
     }))
@@ -65,6 +68,7 @@ export default function DeviceForm ({ device, open, onClose, onExited }: { devic
               />
             </DialogContent>
           </Dialog>
+          <LabelColor color={ labelColor } setLabelColor={ setLabelColor } />
           <MidiButtons midiChannels={ midiChannels } setMidiChannels={ setMidiChannels } />
           <Button variant="contained" size="large" onClick={ submitForm }>{ !!device ? 'Update' : 'Add' }</Button>
         </form>
@@ -78,6 +82,31 @@ export default function DeviceForm ({ device, open, onClose, onExited }: { devic
         <Close />
       </IconButton>
     </Dialog>
+  )
+}
+
+function LabelColor({ color, setLabelColor }: { color?: string, setLabelColor: Dispatch<SetStateAction<string>> }) {
+  const [pickerOpen, setPickerOpen] = useState(false)
+
+  return (
+    <Box className="flex items-center gap-2">
+      <InputLabel>Label Color</InputLabel>
+      <IconButton onClick={ () => setPickerOpen(true) }><Palette fontSize="large" htmlColor={ color } /></IconButton>
+
+      <Dialog open={ pickerOpen } onClose={() => setPickerOpen(false) }>
+        <DialogTitle><Typography variant="h5">Device Label Color</Typography></DialogTitle>
+        <DialogContent>
+          <Chrome
+            className="pt-2"
+            color={ color }
+            onChangeComplete={ (color) => {
+              setLabelColor(color.hex)
+              setPickerOpen(false)
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+    </Box>
   )
 }
 

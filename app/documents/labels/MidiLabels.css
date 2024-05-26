@@ -1,0 +1,48 @@
+@media print {
+  .midi-label {
+    font-size: 10pt;
+
+    .device-name {
+      font-size: .8em;
+    }
+
+    .device-channels {
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+
+      .channel::after {
+        content: ', '
+      }
+      .channel:last-of-type::after {
+        content: ''
+      }
+    }
+
+    .port-connections {
+      .inputs,
+      .outputs {
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .port {
+        font-weight: bold;
+      }
+
+      .port::after {
+        content: ', '
+      }
+      .port:last-of-type::after {
+        content: ''
+      }
+    }
+  }
+
+  [data-label-type="Avery-5160"] {
+        
+  }
+}

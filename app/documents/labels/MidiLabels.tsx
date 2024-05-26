@@ -7,7 +7,7 @@ import LabelSheet, { LabelTypes } from "../LabelSheet"
 import { Box } from "@mui/material"
 import "./MidiLabels.css"
 
-export function MidiLabels({ type }: { type: LabelTypes }) {
+export function MidiLabels({ type }: { type: string }) {
   const devices = useAppSelector(getDecoratedDevices(PortTypes.MIDI))
 
   return (

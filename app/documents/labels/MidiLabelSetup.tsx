@@ -10,7 +10,7 @@ import { MidiLabels } from "./MidiLabels"
 
 export default function MidiLabelSetup() {
   const devices = useAppSelector(getDecoratedDevices(PortTypes.MIDI))
-  const [labelType, setLabelType] = useState(DefaultLabelType)
+  const [labelType, setLabelType] = useState<string>(DefaultLabelType)
 
   return (
     <>
@@ -23,6 +23,7 @@ export default function MidiLabelSetup() {
             <Select
               label="Label Type"
               value={ labelType }
+              onChange={ (e) => setLabelType(e.target.value) }
             >
               { Object.values(LabelTypes).map(label =>
                 <MenuItem value={ label } key={ label }>{ label }</MenuItem>

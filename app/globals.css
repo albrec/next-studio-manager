@@ -50,8 +50,7 @@
     margin: 0.5in;
   }
 
-  header,
-  footer {
+  body > *:not(main) {
     display: none !important;
   }
 

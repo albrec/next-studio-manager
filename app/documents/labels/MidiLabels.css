@@ -1,48 +1,37 @@
-@media print {
-  .midi-label {
-    font-size: 10pt;
+.midi-label {
 
-    .device-name {
-      font-size: .8em;
+  .device-channels {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    .channel::after {
+      content: ', '
     }
+    .channel:last-of-type::after {
+      content: ''
+    }
+  }
 
-    .device-channels {
+  .port-connections {
+    .inputs,
+    .outputs {
       width: 100%;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-
-      .channel::after {
-        content: ', '
-      }
-      .channel:last-of-type::after {
-        content: ''
-      }
     }
 
-    .port-connections {
-      .inputs,
-      .outputs {
-        width: 100%;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
-
-      .port {
-        font-weight: bold;
-      }
-
-      .port::after {
-        content: ', '
-      }
-      .port:last-of-type::after {
-        content: ''
-      }
+    .port {
+      font-weight: bold;
     }
-  }
 
-  [data-label-type="Avery-5160"] {
-        
+    .port::after {
+      content: ', '
+    }
+    .port:last-of-type::after {
+      content: ''
+    }
   }
 }

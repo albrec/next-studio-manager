@@ -3,14 +3,16 @@ import { getDecoratedDevice, getDecoratedDevices } from "@/lib/features/devices/
 import { getMidiChannelMap } from "@/lib/features/midiChannels/midiChannelsSlice"
 import { PortTypes } from "@/lib/features/ports/portTypes"
 import { useAppSelector } from "@/lib/hooks"
-import { Card, CardContent, FormControl, InputLabel, MenuItem, Paper, Select, Typography } from "@mui/material"
-import { DefaultLabelType, LabelTypes } from "../LabelSheet"
+import { Card, CardContent, FormControl, InputLabel, MenuItem, Paper, Select, TextField, Typography } from "@mui/material"
+import { DefaultLabelType } from "../LabelSheet"
 import { useState } from "react"
 import { MidiLabels } from "./MidiLabels"
+import { LabelTypes } from "../labelTypes"
 
 export default function MidiLabelSetup() {
   const devices = useAppSelector(getDecoratedDevices(PortTypes.MIDI))
-  const [labelType, setLabelType] = useState<string>(DefaultLabelType)
+  const [labelType, setLabelType] = useState<string>(DefaultLabelType.id)
+  const [firstIdx, setFirstIdx] = useState(0)
 
   return (
     <>
@@ -26,14 +28,19 @@ export default function MidiLabelSetup() {
               onChange={ (e) => setLabelType(e.target.value) }
             >
               { Object.values(LabelTypes).map(label =>
-                <MenuItem value={ label } key={ label }>{ label }</MenuItem>
+                <MenuItem value={ label.id } key={ label.id }>{ label.name }</MenuItem>
               )}
             </Select>
+          </FormControl>
+
+          <FormControl>
+            {/* <InputLabel>Skip To</InputLabel> */}
+            <TextField type="number" label="Skip to" inputProps={{ min: 0, max: LabelTypes[labelType].count - 1 }} onChange={ (e) => setFirstIdx(parseInt(e.target.value)) } />
           </FormControl>
         </CardContent>
       </Card>
 
-      <MidiLabels type={ labelType } />
+      <MidiLabels type={ labelType } firstIdx={ firstIdx } />
     </>
   )
 }

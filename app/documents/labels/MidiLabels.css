@@ -35,3 +35,8 @@
     }
   }
 }
+
+[data-label-type="Avery5195"] {
+  font-size: 8pt;
+  line-height: 1.15;
+}

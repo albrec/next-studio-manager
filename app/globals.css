@@ -27,7 +27,7 @@
   :root {
     --foreground-rgb: 255, 255, 255;
     --foreground-light: rgb(150, 150, 150);
-    --background-rgb: 0, 0, 0;
+    --background-rgb: 60, 60, 60;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
     --zebra-rgba: 255, 255, 255, 0.15;
@@ -48,6 +48,10 @@
   @page {
     size: letter;
     margin: 0.5in;
+  }
+
+  body {
+    background-color: white !important;
   }
 
   body > *:not(main) {

@@ -1,17 +1,18 @@
-import { Device, DeviceDecorated } from "@/lib/features/devices/deviceTypes"
+import { DeviceDecorated } from "@/lib/features/devices/deviceTypes"
 import { getDecoratedDevice, getDecoratedDevices } from "@/lib/features/devices/devicesSlice"
 import { getMidiChannelMap } from "@/lib/features/midiChannels/midiChannelsSlice"
-import { DecoratedPort, Port, PortTypes } from "@/lib/features/ports/portTypes"
+import { DecoratedPort, PortTypes } from "@/lib/features/ports/portTypes"
 import { useAppSelector } from "@/lib/hooks"
-import LabelSheet, { LabelTypes } from "../LabelSheet"
+import LabelSheet from "../LabelSheet"
 import { Box } from "@mui/material"
 import "./MidiLabels.css"
+import { LabelTypes } from "../labelTypes"
 
-export function MidiLabels({ type }: { type: string }) {
+export function MidiLabels({ type, firstIdx }: { type: string, firstIdx: number }) {
   const devices = useAppSelector(getDecoratedDevices(PortTypes.MIDI))
 
   return (
-    <LabelSheet type={ type } labels={ devices.map(d => <MidiLabel device={ d } labelColor={ d.labelColor } key={ d.id } />) } />
+    <LabelSheet type={ LabelTypes[type] } firstIdx={ firstIdx } labels={ devices.map(d => <MidiLabel device={ d } labelColor={ d.labelColor } key={ d.id } />) } />
   )
 }
 
@@ -25,7 +26,6 @@ function MidiLabel({ device, labelColor }: { device: DeviceDecorated, labelColor
     </Box>
   )
 }
-
 
 function Channels({ device }: { device: DeviceDecorated}) {
   const midiChannels = useAppSelector(getMidiChannelMap)

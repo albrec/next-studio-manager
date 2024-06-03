@@ -11,12 +11,14 @@ export default function ChannelChart() {
     const bgColor = channelMap[cn]?.color || 'var(--background-color)'
     const textColor = `hsl(from ${bgColor} h 0 calc((l - 60) * -100))`
     const channelDevices = devices.filter(d => d.midiChannels?.includes(cn)).map(d => d.name)
+    const deviceColor = devices.find(d => d.midiChannels?.includes(cn))?.color || 'transparent'
     return {
       ...channelMap[cn],
       channel: cn,
       devices: channelDevices,
       bgColor,
       textColor,
+      deviceColor,
     }
   })
 
@@ -26,14 +28,15 @@ export default function ChannelChart() {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Device</TableCell>
+            <TableCell colSpan={2}>Device</TableCell>
             <TableCell align="right">Channel</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           { channels.map(c =>
             <TableRow key={ c.channel }>
-              <TableCell sx={{ bgcolor: c.bgColor, color: c.textColor }}><strong>{ c.devices.join(', ') }</strong> { !!c.name && `(${c.name})` }</TableCell>
+              <TableCell sx={{ bgcolor: c.deviceColor }}></TableCell>
+              <TableCell><strong>{ c.devices.join(', ') }</strong> { !!c.name && `(${c.name})` }</TableCell>
               <TableCell sx={{ bgcolor: c.bgColor, color: c.textColor }} align="right">{ c.channel }</TableCell>
             </TableRow>
           )}

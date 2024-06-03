@@ -1,5 +1,5 @@
 import { Dispatch, FormEvent, SetStateAction, useState } from "react"
-import { Box, Button, ButtonGroup, Dialog, DialogContent, DialogTitle, IconButton, InputLabel, TextField, Typography } from '@mui/material'
+import { Box, Button, ButtonGroup, Checkbox, Dialog, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, InputLabel, TextField, Typography } from '@mui/material'
 import { Close, Palette } from '@mui/icons-material'
 import { useAlertsDispatch } from '../state/alertContext'
 import { useDispatch } from 'react-redux'
@@ -16,6 +16,8 @@ export default function DeviceForm ({ device, open, onClose, onExited }: { devic
   const [deviceColor, setDeviceColor] = useState(device?.color || DeviceColors[0])
   const [pickerOpen, setPickerOpen] = useState(false)
   const [labelColor, setLabelColor] = useState(device?.labelColor || '#fff')
+  const [midiRouter, setMidiRouter] = useState(device?.midiRouter || false)
+  const [audioRouter, setAudioRouter] = useState(device?.audioRouter || false)
   const dispatch = useDispatch()
   const alertsDispatch = useAlertsDispatch()
 
@@ -32,6 +34,8 @@ export default function DeviceForm ({ device, open, onClose, onExited }: { devic
       color: deviceColor,
       labelColor,
       midiChannels,
+      midiRouter,
+      audioRouter,
       portIds: device?.portIds || [],
     }))
     closeModal()
@@ -71,6 +75,8 @@ export default function DeviceForm ({ device, open, onClose, onExited }: { devic
           </Dialog>
           <LabelColor color={ labelColor } setLabelColor={ setLabelColor } />
           <MidiButtons midiChannels={ midiChannels } setMidiChannels={ setMidiChannels } />
+          <MidiRouter midiRouter={ midiRouter } setMidiRouter={ setMidiRouter } />
+          <AudioRouter audioRouter={ audioRouter } setAudioRouter={ setAudioRouter } />
           <Button variant="contained" size="large" onClick={ submitForm }>{ !!device ? 'Update' : 'Add' }</Button>
         </form>
       </Box>
@@ -140,5 +146,17 @@ function MidiButtons({ midiChannels = [], setMidiChannels }: { midiChannels?: nu
         ) }
       </ButtonGroup>
     </Box>
+  )
+}
+
+function MidiRouter({ midiRouter, setMidiRouter }: { midiRouter?: boolean, setMidiRouter: Dispatch<SetStateAction<boolean>> }) {
+  return (
+    <FormControlLabel control={ <Checkbox checked={ midiRouter } onChange={ (e) => setMidiRouter(e.target.checked) } /> } label="MIDI Router" />
+  )
+}
+
+function AudioRouter({ audioRouter, setAudioRouter }: { audioRouter?: boolean, setAudioRouter: Dispatch<SetStateAction<boolean>> }) {
+  return (
+    <FormControlLabel control={ <Checkbox checked={ audioRouter } onChange={ (e) => setAudioRouter(e.target.checked) } /> } label="Audio Router" />
   )
 }

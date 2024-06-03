@@ -1,7 +1,7 @@
 import { useState } from "react"
 import DeviceForm from "./deviceForm"
 import { Box, Button, ButtonGroup, Divider, Paper, Stack, Typography } from "@mui/material"
-import { Add, Delete, Edit, } from "@mui/icons-material"
+import { Add, Delete, Edit, Piano, VolumeUp, } from "@mui/icons-material"
 import { useAlertsDispatch } from "../state/alertContext"
 import DeleteModal from "../components/deleteModal"
 import { Device } from "@/lib/features/devices/deviceTypes"
@@ -53,6 +53,16 @@ export default function DeviceComponent ({ device }: { device: Device }) {
                 </Stack>
               </>
             )}
+            { (device.audioRouter || device.midiRouter) && 
+              <>
+                <Divider orientation="vertical" flexItem />
+                <Box className="flex items-baseline">
+                  <strong>Router: </strong>
+                  { device.audioRouter && <VolumeUp className="self-center" /> }
+                  { device.midiRouter && <Piano className="self-center" /> }
+                </Box>
+              </>
+            }
           </Box>
           <ButtonGroup className="justify-self-end">
             <Button variant="contained" onClick={ () => { openEditDevice(device) } }><Edit /></Button>

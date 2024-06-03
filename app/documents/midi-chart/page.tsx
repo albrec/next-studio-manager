@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/material"
 import Head from "next/head"
 import "./print.css"
 import ChannelChart from "./ChannelChart"
+import MidiRouterCharts from "./MidiRouterCharts"
 
 export default function MIDIChart() {
   
@@ -15,9 +16,10 @@ export default function MIDIChart() {
 
       <Typography variant="h1" gutterBottom>MIDI Charts</Typography>
 
-      <Box className="print-pages">
+      <Box className="flex gap-8 print-pages">
 
         <ChannelChart />
+        <MidiRouterCharts />
       </Box>
 
     </>

@@ -1,18 +1,20 @@
-import { DeviceDecorated } from "@/lib/features/devices/deviceTypes"
-import { getDecoratedDevice, getDecoratedDevices } from "@/lib/features/devices/devicesSlice"
-import { getMidiChannelMap } from "@/lib/features/midiChannels/midiChannelsSlice"
+import { Device } from "@/lib/features/devices/deviceTypes"
+import { getDecoratedDevices } from "@/lib/features/devices/devicesSlice"
 import { PortTypes } from "@/lib/features/ports/portTypes"
 import { useAppSelector } from "@/lib/hooks"
-import { Card, CardContent, FormControl, InputLabel, MenuItem, Paper, Select, TextField, Typography } from "@mui/material"
+import { Box, Button, ButtonGroup, Card, CardContent, FormControl, FormLabel, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material"
 import { DefaultLabelType } from "../LabelSheet"
 import { useState } from "react"
 import { MidiLabels } from "./MidiLabels"
 import { LabelTypes } from "../labelTypes"
+import classNames from "classnames"
 
 export default function MidiLabelSetup() {
   const devices = useAppSelector(getDecoratedDevices(PortTypes.MIDI))
   const [labelType, setLabelType] = useState<string>(DefaultLabelType.id)
   const [firstIdx, setFirstIdx] = useState(0)
+  const [skipLabels, setSkipLabels] = useState<string[]>([])
+  const [selectSkip, setSelectSkip] = useState(false)
 
   return (
     <>
@@ -20,73 +22,42 @@ export default function MidiLabelSetup() {
         <CardContent>
           <Typography variant="h3" gutterBottom>MIDI Setup</Typography>
 
-          <FormControl>
-            <InputLabel>Label Type</InputLabel>
-            <Select
-              label="Label Type"
-              value={ labelType }
-              onChange={ (e) => setLabelType(e.target.value) }
-            >
-              { Object.values(LabelTypes).map(label =>
-                <MenuItem value={ label.id } key={ label.id }>{ label.name }</MenuItem>
-              )}
-            </Select>
-          </FormControl>
+          <Box className="flex gap-8">
+            <FormControl>
+              <InputLabel>Label Type</InputLabel>
+              <Select
+                label="Label Type"
+                value={ labelType }
+                onChange={ (e) => setLabelType(e.target.value) }
+              >
+                { Object.values(LabelTypes).map(label =>
+                  <MenuItem value={ label.id } key={ label.id }>{ label.name }</MenuItem>
+                )}
+              </Select>
+            </FormControl>
 
-          <FormControl>
-            {/* <InputLabel>Skip To</InputLabel> */}
-            <TextField type="number" label="Skip to" inputProps={{ min: 0, max: LabelTypes[labelType].count - 1 }} onChange={ (e) => setFirstIdx(parseInt(e.target.value)) } />
-          </FormControl>
+            <FormControl>
+              <TextField type="number" label="Skip to" sx={{ minWidth: '12ch' }} inputProps={{ min: 0, max: LabelTypes[labelType].count - 1 }} onChange={ (e) => setFirstIdx(parseInt(e.target.value)) } />
+            </FormControl>
+            
+            <FormControl className="flex flex-row items-center gap-4">
+              <FormLabel>Skip Labels</FormLabel>
+              <ButtonGroup>
+                <Button onClick={ () => setSelectSkip(!selectSkip) } variant={ selectSkip ? 'contained' : 'outlined'}>Select</Button>
+                <Button onClick={ () => setSkipLabels([]) }>Reset</Button>
+              </ButtonGroup>
+            </FormControl>
+          </Box>
         </CardContent>
       </Card>
 
-      <MidiLabels type={ labelType } firstIdx={ firstIdx } />
+      <MidiLabels className={ classNames({ selectSkip: selectSkip }) } type={ labelType } firstIdx={ firstIdx } labelClick={ addSkipLabel } skipLabels={ skipLabels } />
     </>
   )
+
+  function addSkipLabel(device: Device) {
+    if(selectSkip) {
+      setSkipLabels(skipLabels.concat(device.id))
+    }
+  }
 }
-
-
-function MidiLabel({ device }: { device: DeviceDecorated }) {
-  return (
-    <>
-      <small>{ device.name }</small>
-      <Channels device={ device } />
-      <Ports device={ device } />
-    </>
-  )
-}
-
-
-function Channels({ device }: { device: DeviceDecorated}) {
-  const midiChannels = useAppSelector(getMidiChannelMap)
-  const channels = (device.midiChannels || []).map(c => ({ ...midiChannels[c], channel: c }))
-
-  return channels.length ? (
-    <div>
-      Ch: { channels.map((c, i) => 
-        <>
-          { i > 0 && ', '}
-          <strong>{ c.channel } </strong>
-          { c.name && <span>({ c.name })</span> }
-        </>  
-      )}
-    </div>
-  ) : null
-}
-
-
-function Ports({ device }: { device: DeviceDecorated}) {
-  const decoratedDevice = useAppSelector(getDecoratedDevice(device))
-  const inputDevices = decoratedDevice.inputs.filter(p => p.type === PortTypes.MIDI && p.connectedDevice).map(p => p.connectedDevice)
-  const outputDevices = decoratedDevice.outputs.filter(p => p.type === PortTypes.MIDI && p.connectedDevice).map(p => p.connectedDevice)
-
-  return (
-    <div>
-      { !!inputDevices.length && <span>Inputs: <strong>{ inputDevices.map(d => d?.name).join(', ') }</strong></span> }
-      { !!outputDevices.length && <span> | Outputs: <strong>{ outputDevices.map(d => d?.name).join(', ') }</strong></span> }
-    </div>
-  )
-}
-
-
-

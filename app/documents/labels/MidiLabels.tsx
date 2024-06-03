@@ -8,16 +8,16 @@ import { Box } from "@mui/material"
 import "./MidiLabels.css"
 import { LabelTypes } from "../labelTypes"
 
-export function MidiLabels({ type, firstIdx }: { type: string, firstIdx: number }) {
+export function MidiLabels({ type, firstIdx, className, labelClick, skipLabels }: { type: string, firstIdx: number, className?: string, labelClick?(args: any): void, skipLabels: string[] }) {
   const devices = useAppSelector(getDecoratedDevices(PortTypes.MIDI))
 
   return (
-    <LabelSheet type={ LabelTypes[type] } firstIdx={ firstIdx } labels={ devices.map(d => <MidiLabel device={ d } labelColor={ d.labelColor } key={ d.id } />) } />
+    <LabelSheet className={ className } type={ LabelTypes[type] } firstIdx={ firstIdx } labels={ devices.filter(d => !skipLabels.includes(d.id)).map(d => <MidiLabel device={ d } labelColor={ d.labelColor } labelClick={ () => labelClick?.(d) } key={ d.id } />) } />
   )
 }
 
 
-function MidiLabel({ device, labelColor }: { device: DeviceDecorated, labelColor?: string }) {
+function MidiLabel({ device, labelColor, labelClick }: { device: DeviceDecorated, labelColor?: string, labelClick?(): void }) {
   return (
     <Box className="midi-label">
       <small>{ device.name }</small>

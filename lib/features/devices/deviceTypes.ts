@@ -10,6 +10,8 @@ export interface DevicePayload {
   labelColor?: string,
   midiChannels?: number[],
   portIds: Port['id'][],
+  midiRouter: boolean,
+  audioRouter: boolean,
 }
 
 export interface Device extends DevicePayload {
